@@ -1,0 +1,341 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== CSS Variables - Te Guio Design Tokens ===== */
+:root {
+  --color-primary: #312c85;
+  --color-primary-light: #4a44a8;
+  --color-primary-dark: #1f1b5c;
+  --color-secondary: #FF6B6B;
+  --color-seller: #398269;
+  --color-accent: #4ECDC4;
+  --font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Plus Jakarta Sans', 'DM Sans', system-ui, sans-serif;
+  --border-radius: 0.75rem;
+
+  /* Gray scale (light) */
+  --gray-50: 249 250 251;
+  --gray-100: 243 244 246;
+  --gray-200: 229 231 235;
+  --gray-300: 209 213 219;
+  --gray-400: 156 163 175;
+  --gray-500: 107 114 128;
+  --gray-600: 75 85 99;
+  --gray-700: 55 65 81;
+  --gray-800: 31 41 55;
+  --gray-900: 17 24 39;
+
+  /* Surface */
+  --surface: 255 255 255;
+  --surface-alt: 249 250 251;
+}
+
+.dark {
+  --gray-50: 32 34 40;
+  --gray-100: 40 42 50;
+  --gray-200: 52 55 65;
+  --gray-300: 68 71 82;
+  --gray-400: 115 118 130;
+  --gray-500: 148 151 162;
+  --gray-600: 180 183 194;
+  --gray-700: 205 208 216;
+  --gray-800: 225 227 233;
+  --gray-900: 240 241 245;
+
+  --surface: 42 44 54;
+  --surface-alt: 32 34 40;
+}
+
+@layer base {
+  :root {
+    --sat: env(safe-area-inset-top, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+  }
+
+  :root {
+    --nav-h: calc(2.5rem + var(--sat));
+  }
+
+  @media (min-width: 640px) {
+    :root { --nav-h: calc(3rem + var(--sat)); }
+  }
+  @media (min-width: 1024px) {
+    :root { --nav-h: calc(3.5rem + var(--sat)); }
+  }
+
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+    font-family: var(--font-family);
+  }
+
+  /* Solid opaque background behind the Android navigation bar.
+     On API 35+ the OS enforces edge-to-edge and the nav bar is
+     always transparent. This fixed strip sits behind the transparent
+     nav bar, covering any web content that scrolls underneath and
+     providing a solid, theme-aware background. */
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: var(--android-nav-h, 0px);
+    background: rgb(var(--surface));
+    z-index: 99999;
+    pointer-events: none;
+  }
+
+  /* Checkbox & radio: color consistente en todos los dispositivos */
+  input[type="checkbox"],
+  input[type="radio"] {
+    accent-color: #312c85;
+    color-scheme: light;
+  }
+  .dark input[type="checkbox"],
+  .dark input[type="radio"] {
+    accent-color: #8b87cc;
+    color-scheme: dark;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--gray-300));
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--gray-400));
+  }
+}
+
+@layer components {
+  /* ===== BUTTONS ===== */
+  .btn-primary {
+    @apply bg-primary-600 text-white font-semibold py-2.5 px-5 rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-primary:hover {
+    @apply bg-primary-700 shadow-md;
+  }
+  .btn-primary:active {
+    transform: scale(0.98);
+  }
+
+  .btn-secondary {
+    @apply bg-gray-100 text-gray-700 font-semibold py-2.5 px-5 rounded-xl transition-all duration-200 border border-gray-200;
+  }
+  .btn-secondary:hover {
+    @apply bg-gray-200;
+  }
+
+  .btn-danger {
+    @apply bg-red-600 text-white font-semibold py-2.5 px-5 rounded-xl transition-all duration-200;
+  }
+  .btn-danger:hover {
+    @apply bg-red-700 shadow-md;
+  }
+
+  .btn-success {
+    @apply bg-seller-500 text-white font-semibold py-2.5 px-5 rounded-xl transition-all duration-200;
+  }
+  .btn-success:hover {
+    @apply bg-seller-600 shadow-md;
+  }
+
+  .btn-outline-primary {
+    @apply border-2 border-primary-600 text-primary-600 font-semibold py-2.5 px-5 rounded-xl transition-all duration-200;
+  }
+  .btn-outline-primary:hover {
+    @apply bg-primary-50;
+  }
+
+  /* ===== INPUT ===== */
+  .input-field {
+    @apply w-full px-4 py-2.5 border border-gray-200 rounded-xl outline-none transition-all duration-200 bg-surface text-gray-900 placeholder-gray-400;
+  }
+  .input-field:focus {
+    @apply border-primary-500;
+    box-shadow: 0 0 0 3px rgba(49, 44, 133, 0.12);
+  }
+
+  /* ===== CARD ===== */
+  .card {
+    @apply bg-surface rounded-2xl p-6 transition-shadow duration-200;
+    border: 1px solid rgb(var(--gray-200) / 0.8);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.08);
+  }
+  .card:hover {
+    box-shadow: 0 4px 12px 0 rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.08);
+  }
+
+  /* ===== BADGES ===== */
+  .badge-premium {
+    @apply bg-amber-50 text-amber-700 text-xs font-bold px-3 py-1 rounded-full;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+  }
+  .badge-estandar {
+    @apply bg-primary-50 text-primary-700 text-xs font-bold px-3 py-1 rounded-full;
+    border: 1px solid rgba(49, 44, 133, 0.15);
+  }
+  .badge-pending {
+    @apply bg-warning-50 text-warning-700 text-xs font-bold px-3 py-1 rounded-full;
+    border: 1px solid rgba(255, 152, 0, 0.2);
+  }
+  .badge-approved {
+    @apply bg-green-50 text-green-700 text-xs font-bold px-3 py-1 rounded-full;
+    border: 1px solid rgba(76, 175, 80, 0.2);
+  }
+  .badge-rejected {
+    @apply bg-red-50 text-red-700 text-xs font-bold px-3 py-1 rounded-full;
+    border: 1px solid rgba(244, 67, 54, 0.2);
+  }
+
+  /* ===== GRADIENTS ===== */
+  .gradient-primary {
+    background: linear-gradient(135deg, #312c85 0%, #4a44a8 50%, #6a64b8 100%);
+  }
+  .gradient-primary-radial {
+    background: radial-gradient(ellipse at top left, #4a44a8 0%, #312c85 50%, #1f1b5c 100%);
+  }
+  .gradient-seller {
+    background: linear-gradient(135deg, #398269 0%, #4A9D82 50%, #5CB896 100%);
+  }
+  .gradient-hero {
+    background: linear-gradient(160deg, #312c85 0%, #4a44a8 40%, #6a64b8 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .gradient-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -30%;
+    width: 80%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .gradient-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -60%;
+    left: -20%;
+    width: 60%;
+    height: 180%;
+    background: radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  /* ===== WAVE ===== */
+  .wave-bottom {
+    position: relative;
+  }
+  .wave-bottom::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: rgb(var(--gray-50));
+    clip-path: ellipse(55% 100% at 50% 100%);
+  }
+
+  /* ===== STAT CARD ===== */
+  .stat-card {
+    @apply bg-surface rounded-2xl p-5 transition-all duration-300;
+    border: 1px solid rgb(var(--gray-200) / 0.8);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.08);
+  }
+  .stat-card:hover {
+    box-shadow: 0 4px 12px 0 rgb(0 0 0 / 0.1);
+    transform: translateY(-2px);
+  }
+
+  /* ===== CHIPS ===== */
+  .chip {
+    @apply px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 cursor-pointer border;
+  }
+  .chip-active {
+    @apply bg-primary-600 text-white border-primary-600;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  }
+  .chip-inactive {
+    @apply bg-surface text-gray-600 border-gray-200;
+  }
+  .chip-inactive:hover {
+    @apply border-primary-300 text-primary-600;
+  }
+
+  /* ===== SECTION ===== */
+  .section-title {
+    @apply text-xs font-bold uppercase tracking-wider text-gray-400;
+  }
+
+  /* ===== PAGE HEADER ===== */
+  .page-header {
+    @apply text-white rounded-2xl p-6 mb-6 relative overflow-hidden;
+    background: linear-gradient(160deg, #312c85 0%, #4a44a8 40%, #6a64b8 100%);
+  }
+  .page-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -30%;
+    width: 80%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .page-header h1 {
+    @apply text-2xl font-bold relative z-10;
+  }
+  .page-header p {
+    @apply mt-1 relative z-10;
+    color: rgba(255,255,255,0.7);
+  }
+
+  /* ===== SHADOWS ===== */
+  .shadow-card {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.08);
+  }
+  .shadow-card-hover {
+    box-shadow: 0 4px 12px 0 rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.08);
+  }
+  .shadow-elevated {
+    box-shadow: 0 8px 24px -4px rgba(49, 44, 133, 0.12), 0 2px 8px -2px rgb(0 0 0 / 0.06);
+  }
+  .shadow-navbar {
+    box-shadow: 0 2px 12px 0 rgba(49, 44, 133, 0.08);
+  }
+}
+
+/* ===== Dark mode overrides for semantic badges ===== */
+.dark .badge-premium { background-color: rgba(251, 191, 36, 0.15); color: #FBBF24; border-color: rgba(251, 191, 36, 0.25); }
+.dark .badge-estandar { background-color: rgba(49, 44, 133, 0.2); color: #BBB5F3; border-color: rgba(49, 44, 133, 0.3); }
+.dark .badge-pending { background-color: rgba(255, 152, 0, 0.15); color: #FFB74D; border-color: rgba(255, 152, 0, 0.25); }
+.dark .badge-approved { background-color: rgba(76, 175, 80, 0.15); color: #81C784; border-color: rgba(76, 175, 80, 0.25); }
+.dark .badge-rejected { background-color: rgba(244, 67, 54, 0.15); color: #E57373; border-color: rgba(244, 67, 54, 0.25); }
+
+@layer utilities {
+  .text-gradient-primary {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #312c85, #6a64b8);
+  }
+
+  /* Safe area bottom padding for Android edge-to-edge navigation bar */
+  .pb-safe-bottom {
+    padding-bottom: var(--android-nav-h, 0px);
+  }
+}

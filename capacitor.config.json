@@ -1,0 +1,44 @@
+{
+  "appId": "com.teguio.marketplace",
+  "appName": "Te Guio",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https",
+    "allowNavigation": [
+      "https://backend-production-a6ce.up.railway.app/*",
+      "https://*.up.railway.app/*",
+      "https://fonts.googleapis.com/*",
+      "https://fonts.gstatic.com/*",
+      "https://*.tile.openstreetmap.org/*"
+    ]
+  },
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    },
+    "StatusBar": {
+      "style": "LIGHT",
+      "backgroundColor": "#312C85"
+    },
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#FFFFFF",
+      "showSpinner": false,
+      "androidScaleType": "CENTER_CROP"
+    },
+    "Keyboard": {
+      "resize": "body",
+      "resizeOnFullScreen": true
+    },
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"],
+      "smallIcon": "ic_stat_notify",
+      "largeIcon": "ic_teguio_logo",
+      "iconColor": "#312C85"
+    }
+  },
+  "android": {
+    "allowMixedContent": true,
+    "webContentsDebuggingEnabled": true
+  }
+}
