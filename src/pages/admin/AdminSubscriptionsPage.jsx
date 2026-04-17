@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { adminService } from '../../services/adminService';
 import { useSSEListener } from '../../hooks/useSSEListener';
 import { formatDateTime, formatDate, formatCurrency } from '../../utils/formatters';
-import { openExternal } from '../../utils/navigation';
+
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import EmptyState from '../../components/ui/EmptyState';
 import Modal from '../../components/ui/Modal';
@@ -26,6 +26,7 @@ export default function AdminSubscriptionsPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [expiringDaysThreshold, setExpiringDaysThreshold] = useState(15);
+  const [previewDoc, setPreviewDoc] = useState(null);
 
   const loadData = async () => {
     setLoading(true);
@@ -395,9 +396,12 @@ export default function AdminSubscriptionsPage() {
                 <div>
                   <p className="text-sm font-bold text-gray-800 mb-3">Comprobante de Pago</p>
                   {comprobanteUrl.endsWith('.pdf') ? (
-                    <a href={resolveFileUrl(comprobanteUrl)} target="_blank" rel="noreferrer" className="text-sm text-primary-600 underline">Ver PDF</a>
+                    <button onClick={() => setPreviewDoc({ url: resolveFileUrl(comprobanteUrl), type: 'pdf' })} className="flex flex-col items-center p-4 bg-gray-50 hover:bg-gray-100 transition-colors rounded-xl border border-gray-200 w-full cursor-pointer">
+                      <HiOutlinePhotograph className="w-10 h-10 text-red-500 mb-1" />
+                      <span className="text-sm text-primary-600 font-medium">Ver PDF del comprobante</span>
+                    </button>
                   ) : (
-                    <img src={resolveFileUrl(comprobanteUrl)} alt="Comprobante" className="w-full rounded-xl border border-gray-200" />
+                    <img src={resolveFileUrl(comprobanteUrl)} alt="Comprobante" className="w-full rounded-xl border border-gray-200 cursor-pointer" onClick={() => setPreviewDoc({ url: resolveFileUrl(comprobanteUrl), type: 'image' })} />
                   )}
                 </div>
               )}
@@ -410,12 +414,12 @@ export default function AdminSubscriptionsPage() {
                     {getArchivosAdicionales(selectedItem).map((archivo) => (
                       <div key={archivo.id} className="border border-gray-200 rounded-xl overflow-hidden">
                         {archivo.url_archivo?.endsWith('.pdf') ? (
-                          <a href="#" onClick={(e) => { e.preventDefault(); openExternal(resolveFileUrl(archivo.url_archivo)); }} className="flex flex-col items-center p-4 hover:bg-gray-50 transition-colors">
+                          <button onClick={() => setPreviewDoc({ url: resolveFileUrl(archivo.url_archivo), type: 'pdf' })} className="flex flex-col items-center p-4 hover:bg-gray-50 transition-colors w-full">
                             <HiOutlinePhotograph className="w-8 h-8 text-red-500 mb-1" />
-                            <span className="text-xs text-primary-600 underline">Ver PDF</span>
-                          </a>
+                            <span className="text-xs text-primary-600 font-medium">Ver PDF</span>
+                          </button>
                         ) : (
-                          <img src={resolveFileUrl(archivo.url_archivo)} alt="Documento adicional" className="w-full h-32 object-cover cursor-pointer" onClick={() => openExternal(resolveFileUrl(archivo.url_archivo))} />
+                          <img src={resolveFileUrl(archivo.url_archivo)} alt="Documento adicional" className="w-full h-32 object-cover cursor-pointer" onClick={() => setPreviewDoc({ url: resolveFileUrl(archivo.url_archivo), type: 'image' })} />
                         )}
                       </div>
                     ))}
@@ -482,6 +486,47 @@ export default function AdminSubscriptionsPage() {
           </div>
         </div>
       </Modal>
+
+      {/* Modal de previsualización de documentos */}
+      {previewDoc && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-3"
+          onClick={() => setPreviewDoc(null)}
+        >
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" />
+          <div
+            className="relative bg-surface rounded-2xl shadow-elevated w-full max-w-lg flex flex-col z-10"
+            style={{ maxHeight: '92vh' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
+              <h3 className="text-base font-semibold text-gray-900 font-display">
+                {previewDoc.type === 'pdf' ? 'Vista previa del PDF' : 'Vista previa de la imagen'}
+              </h3>
+              <button onClick={() => setPreviewDoc(null)} className="p-1 rounded-lg hover:bg-gray-100">
+                <HiOutlineX className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            <div className="flex-1 min-h-0 p-2" style={{ height: previewDoc.type === 'pdf' ? '75vh' : 'auto' }}>
+              {previewDoc.type === 'pdf' ? (
+                <iframe
+                  src={previewDoc.url}
+                  className="w-full h-full border-0 rounded-lg"
+                  title="Vista previa del documento"
+                />
+              ) : (
+                <div className="flex items-center justify-center">
+                  <img
+                    src={previewDoc.url}
+                    alt="Vista previa"
+                    className="max-w-full max-h-[75vh] object-contain rounded-lg"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <Modal open={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)} title="Eliminar solicitudes rechazadas" maxWidth="max-w-sm">
         <div className="space-y-4">

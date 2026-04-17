@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { API_URL } from '../utils/constants';
+import { API_URL, AUTH_ERROR_CODES, SSE_EVENTS } from '../utils/constants';
+import { sseEventBus } from './sseEventBus';
 
 const apiClient = axios.create({
   baseURL: API_URL,
@@ -40,6 +41,17 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    // Si la cuenta fue inhabilitada (403 ACCOUNT_DISABLED): notificar via bus y rechazar
+    if (
+      error.response?.status === 403 &&
+      error.response?.data?.error === AUTH_ERROR_CODES.ACCOUNT_DISABLED
+    ) {
+      sseEventBus.emit(SSE_EVENTS.ACCOUNT_DISABLED, {
+        message: error.response.data.message,
+      });
+      return Promise.reject(error);
+    }
 
     // Si es 401 y no es un retry ni es el endpoint de refresh
     if (

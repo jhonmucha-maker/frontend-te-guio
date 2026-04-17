@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useAuth } from '../../features/auth/useAuth';
 import { useSSE } from '../../hooks/useSSE';
 import { sseEventBus } from '../../services/sseEventBus';
+import { SSE_EVENTS } from '../../utils/constants';
 import { HiOutlineBell } from 'react-icons/hi';
 import toast from 'react-hot-toast';
 
@@ -42,8 +43,8 @@ export default function NotificationBell() {
       sseEventBus.emit(data.type, data.data || {});
     }
 
-    // Eventos que no deben aparecer en la campana (acciones propias del usuario)
-    const hiddenEvents = ['shopping_list.updated', 'favorites.updated', 'admin.dashboard.updated'];
+    // Eventos que no deben aparecer en la campana (acciones propias o manejados por otros componentes)
+    const hiddenEvents = ['shopping_list.updated', 'favorites.updated', 'admin.dashboard.updated', SSE_EVENTS.ACCOUNT_DISABLED];
     if (hiddenEvents.includes(data.type)) return;
 
     const label = EVENT_LABELS[data.type] || data.type;

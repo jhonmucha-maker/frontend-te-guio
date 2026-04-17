@@ -61,3 +61,13 @@ export const ROLE_ROUTES = {
   VENDEDOR: '/vendedor/dashboard',
   ADMINISTRADOR: '/admin/dashboard',
 };
+
+// Codigos de error de autenticacion (deben coincidir con backend/config/constants.js AUTH_ERROR_CODES)
+export const AUTH_ERROR_CODES = {
+  ACCOUNT_DISABLED: 'ACCOUNT_DISABLED',
+};
+
+// Eventos SSE (deben coincidir con backend/config/eventNames.js)
+export const SSE_EVENTS = {
+  ACCOUNT_DISABLED: 'account.disabled',
+};
