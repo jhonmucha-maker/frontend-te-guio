@@ -275,7 +275,7 @@ export default function CreateStorePage() {
 
         {/* Action sheet para elegir fuente de foto */}
         {showPhotoOptions && (
-          <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center p-4">
+          <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center p-4" style={{ paddingBottom: 'calc(1rem + var(--android-nav-h, 0px))' }}>
             <div className="fixed inset-0 bg-black/40" onClick={() => setShowPhotoOptions(false)} />
             <div className="relative bg-surface rounded-2xl shadow-elevated w-full max-w-sm z-10 p-5 animate-slide-up">
               <h3 className="text-base font-display font-bold text-gray-900 text-center mb-4">Agregar foto</h3>

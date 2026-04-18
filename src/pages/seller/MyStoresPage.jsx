@@ -343,10 +343,17 @@ function ActiveStoreCard({ store, onEdit, onDelete, onRatings, deleting }) {
         {/* Name + badge */}
         <div className="flex items-center justify-between mb-1">
           <h3 className="text-base font-display font-bold text-gray-900 truncate">{store.nombre}</h3>
-          <span className="inline-flex items-center gap-1 bg-primary-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ml-2">
-            <HiOutlineCheckCircle className="w-3 h-3" />
-            Activa
-          </span>
+          {store.activo ? (
+            <span className="inline-flex items-center gap-1 bg-primary-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ml-2">
+              <HiOutlineCheckCircle className="w-3 h-3" />
+              Activa
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ml-2">
+              <HiOutlineExclamation className="w-3 h-3" />
+              Deshabilitada
+            </span>
+          )}
         </div>
 
         {/* Subscription status */}
@@ -360,6 +367,15 @@ function ActiveStoreCard({ store, onEdit, onDelete, onRatings, deleting }) {
           <HiOutlineClock className="w-3 h-3" />
           {subLabel || 'Sin suscripción'}
         </div>
+
+        {/* Disabled by admin notice */}
+        {!store.activo && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-2.5 mb-1.5">
+            <p className="text-[11px] text-red-700">
+              Tu tienda ha sido deshabilitada por el administrador y no es visible para los compradores.
+            </p>
+          </div>
+        )}
 
         {/* Product count */}
         <div className="flex items-center gap-1.5 text-xs text-gray-600 mt-1">

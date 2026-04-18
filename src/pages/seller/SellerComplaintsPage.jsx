@@ -208,7 +208,8 @@ function ReceivedTab({ onSend, onOpenTicket, refreshKey }) {
       {/* FAB */}
       <button
         onClick={onSend}
-        className="fixed bottom-6 right-6 bg-primary-600 hover:bg-primary-700 text-white rounded-full shadow-elevated flex items-center gap-2 px-5 py-3.5 transition-all duration-300 hover:scale-105 z-40"
+        style={{ bottom: 'calc(1.5rem + var(--android-nav-h, 0px))' }}
+        className="fixed right-6 bg-primary-600 hover:bg-primary-700 text-white rounded-full shadow-elevated flex items-center gap-2 px-5 py-3.5 transition-all duration-300 hover:scale-105 z-40"
       >
         <HiOutlinePlus className="w-5 h-5" />
         <span className="font-semibold text-sm">Enviar Mensaje</span>
@@ -296,7 +297,8 @@ function SentTab({ onSend, onOpenTicket, refreshKey }) {
       {/* FAB */}
       <button
         onClick={onSend}
-        className="fixed bottom-6 right-6 bg-primary-600 hover:bg-primary-700 text-white rounded-full shadow-elevated flex items-center gap-2 px-5 py-3.5 transition-all duration-300 hover:scale-105 z-40"
+        style={{ bottom: 'calc(1.5rem + var(--android-nav-h, 0px))' }}
+        className="fixed right-6 bg-primary-600 hover:bg-primary-700 text-white rounded-full shadow-elevated flex items-center gap-2 px-5 py-3.5 transition-all duration-300 hover:scale-105 z-40"
       >
         <HiOutlinePlus className="w-5 h-5" />
         <span className="font-semibold text-sm">Enviar Mensaje</span>

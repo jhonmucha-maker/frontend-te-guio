@@ -87,7 +87,7 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel, aspectRa
       </div>
 
       {/* Controls */}
-      <div className="bg-black/90 px-5 pt-4 pb-6 shrink-0 space-y-4">
+      <div className="bg-black/90 px-5 pt-4 shrink-0 space-y-4" style={{ paddingBottom: 'calc(1.5rem + var(--android-nav-h, 0px))' }}>
         {/* Aspect ratio toggle */}
         <div className="flex items-center justify-center gap-2">
           <button

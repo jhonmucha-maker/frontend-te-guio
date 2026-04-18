@@ -53,6 +53,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <App />
         <Toaster
           position="top-right"
+          containerStyle={{
+            top: 'calc(8px + var(--sat, 0px))',
+          }}
           toastOptions={{
             duration: 2000,
             style: { fontSize: '14px' },

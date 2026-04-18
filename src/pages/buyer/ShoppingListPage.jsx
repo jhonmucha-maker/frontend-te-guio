@@ -96,6 +96,9 @@ export default function ShoppingListPage() {
   const [storeRating, setStoreRating] = useState({ estrellas: 0, comentario: '' });
   const [submittingRating, setSubmittingRating] = useState(false);
 
+  // Guard contra doble-clic en toggle purchased
+  const [togglingId, setTogglingId] = useState(null);
+
   const inputRef = useRef(null);
 
   // ---- load catalog zones for manual items ----
@@ -112,15 +115,15 @@ export default function ShoppingListPage() {
     loadList();
   }, []);
 
-  const loadList = async () => {
-    setLoading(true);
+  const loadList = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const { data } = await buyerService.getShoppingList();
       setList(data.data || data);
     } catch {
       // silent
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -176,47 +179,54 @@ export default function ShoppingListPage() {
 
   // ---- toggle purchased (mark / unmark) ----
   const handleTogglePurchased = async (item) => {
-    if (item.comprado) {
-      // UNMARK — revert purchase and delete today's ratings
-      try {
-        await buyerService.unmarkPurchased(item.id);
-        loadList();
-      } catch (err) {
-        toast.error(err.response?.data?.error || 'Error al desmarcar');
-      }
-      return;
-    }
+    if (togglingId) return; // Prevenir doble-clic
+    setTogglingId(item.id);
 
-    // MARK as purchased
     try {
-      const { data } = await buyerService.markPurchased(item.id);
-
-      // Check if all items are now purchased (this was the last one)
-      const allPurchased = items.every((i) => i.id === item.id || i.comprado);
-
-      // Open rating modal if this is a PRODUCT item with rating_payload
-      const rp = data.rating_payload;
-      if (item.tipo === 'PRODUCT' && rp && (rp.product_id || rp.store_id)) {
-        const payload = {
-          product_id: rp.product_id,
-          store_id: rp.store_id,
-          productName: item.producto?.nombre || 'Producto',
-          storeName: item.producto?.tienda?.nombre || '',
-          puede_calificar_producto_hoy: rp.puede_calificar_producto_hoy,
-          puede_calificar_tienda_hoy: rp.puede_calificar_tienda_hoy,
-        };
-        setRatingPayload(payload);
-        setProductRating({ estrellas: 0, comentario: '' });
-        setStoreRating({ estrellas: 0, comentario: '' });
-        if (allPurchased) setPendingCongrats(true);
-        setShowRatingModal(true);
-      } else if (allPurchased) {
-        setShowCongratsModal(true);
+      if (item.comprado) {
+        // UNMARK — revert purchase and delete today's ratings
+        try {
+          await buyerService.unmarkPurchased(item.id);
+          await loadList(true);
+        } catch (err) {
+          toast.error(err.response?.data?.error || 'Error al desmarcar');
+        }
+        return;
       }
 
-      loadList();
-    } catch (err) {
-      toast.error(err.response?.data?.error || 'Error');
+      // MARK as purchased
+      try {
+        const { data } = await buyerService.markPurchased(item.id);
+
+        // Check if all items are now purchased (this was the last one)
+        const allPurchased = items.every((i) => i.id === item.id || i.comprado);
+
+        // Open rating modal if this is a PRODUCT item with rating_payload
+        const rp = data.rating_payload;
+        if (item.tipo === 'PRODUCT' && rp && (rp.product_id || rp.store_id)) {
+          const payload = {
+            product_id: rp.product_id,
+            store_id: rp.store_id,
+            productName: item.producto?.nombre || 'Producto',
+            storeName: item.producto?.tienda?.nombre || '',
+            puede_calificar_producto_hoy: rp.puede_calificar_producto_hoy,
+            puede_calificar_tienda_hoy: rp.puede_calificar_tienda_hoy,
+          };
+          setRatingPayload(payload);
+          setProductRating({ estrellas: 0, comentario: '' });
+          setStoreRating({ estrellas: 0, comentario: '' });
+          if (allPurchased) setPendingCongrats(true);
+          setShowRatingModal(true);
+        } else if (allPurchased) {
+          setShowCongratsModal(true);
+        }
+
+        await loadList(true);
+      } catch (err) {
+        toast.error(err.response?.data?.error || 'Error');
+      }
+    } finally {
+      setTogglingId(null);
     }
   };
 
@@ -232,9 +242,27 @@ export default function ShoppingListPage() {
   };
 
   // ---- finalize list ----
-  const handleFinalize = () => {
-    // Mark all unchecked items or just show congrats
-    setShowCongratsModal(true);
+  const [finalizing, setFinalizing] = useState(false);
+
+  const handleFinalize = async () => {
+    const pendingItems = items.filter((i) => !i.comprado);
+    if (pendingItems.length === 0) {
+      setShowCongratsModal(true);
+      return;
+    }
+    setFinalizing(true);
+    try {
+      for (const item of pendingItems) {
+        await buyerService.markPurchased(item.id);
+      }
+      await loadList(true);
+      setShowCongratsModal(true);
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Error al finalizar compras');
+      await loadList(true);
+    } finally {
+      setFinalizing(false);
+    }
   };
 
   const handleContinueAfterCongrats = () => {
@@ -254,31 +282,45 @@ export default function ShoppingListPage() {
   const handleRatingSave = async () => {
     if (submittingRating) return;
     setSubmittingRating(true);
+    const errors = [];
     try {
       // Save product rating if applicable
       if (ratingPayload.puede_calificar_producto_hoy && productRating.estrellas > 0) {
-        await buyerService.rateProduct({
-          id_producto: ratingPayload.product_id,
-          estrellas: productRating.estrellas,
-          comentario: productRating.comentario,
-        });
+        try {
+          await buyerService.rateProduct({
+            id_producto: ratingPayload.product_id,
+            estrellas: productRating.estrellas,
+            comentario: productRating.comentario,
+          });
+        } catch (err) {
+          if (err.response?.status !== 429) {
+            errors.push(err.response?.data?.error || 'Error al calificar producto');
+          }
+        }
       }
       // Save store rating if applicable
       if (ratingPayload.puede_calificar_tienda_hoy && storeRating.estrellas > 0) {
-        await buyerService.rateStore({
-          id_tienda: ratingPayload.store_id,
-          estrellas: storeRating.estrellas,
-          comentario: storeRating.comentario,
-        });
+        try {
+          await buyerService.rateStore({
+            id_tienda: ratingPayload.store_id,
+            estrellas: storeRating.estrellas,
+            comentario: storeRating.comentario,
+          });
+        } catch (err) {
+          if (err.response?.status !== 429) {
+            errors.push(err.response?.data?.error || 'Error al calificar tienda');
+          }
+        }
       }
-      toast.success('Calificacion guardada');
+      if (errors.length > 0) {
+        toast.error(errors.join('. '));
+      } else {
+        toast.success('Calificacion guardada');
+      }
       closeRatingModal();
     } catch (err) {
       const msg = err.response?.data?.error || 'Error al calificar';
       toast.error(msg);
-      if (err.response?.status === 429) {
-        closeRatingModal();
-      }
     } finally {
       setSubmittingRating(false);
     }
@@ -289,7 +331,7 @@ export default function ShoppingListPage() {
 
   // ---- render ----
   return (
-    <div className="animate-fade-in pb-28">
+    <div className="animate-fade-in" style={{ paddingBottom: 'calc(7rem + var(--android-nav-h, 0px))' }}>
       {/* ====== TOP INPUT BAR ====== */}
       <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-gray-100 px-4 py-3 -mx-4 mb-4 shadow-sm">
         <div className="flex items-center gap-2">
@@ -426,6 +468,7 @@ export default function ShoppingListPage() {
                             onTogglePurchased={handleTogglePurchased}
                             onDelete={handleDelete}
                             onQuantityChange={handleQuantityChange}
+                            isToggling={togglingId === item.id}
                           />
                         ))}
                       </div>
@@ -439,6 +482,7 @@ export default function ShoppingListPage() {
                         item={item}
                         onTogglePurchased={handleTogglePurchased}
                         onDelete={handleDelete}
+                        isToggling={togglingId === item.id}
                       />
                     ))}
                 </div>
@@ -450,7 +494,7 @@ export default function ShoppingListPage() {
 
       {/* ====== BOTTOM BAR ====== */}
       {items.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 bg-surface border-t border-gray-100 shadow-elevated z-30">
+        <div className="fixed left-0 right-0 bg-surface border-t border-gray-100 shadow-elevated z-30" style={{ bottom: 'var(--android-nav-h, 0px)' }}>
           <div className="max-w-3xl mx-auto flex items-center justify-between px-4 py-3">
             {/* Completed count */}
             <div className="flex items-center gap-2">
@@ -468,10 +512,18 @@ export default function ShoppingListPage() {
             {/* Finalize button */}
             <button
               onClick={handleFinalize}
-              className="w-10 h-10 rounded-xl bg-seller-500 text-white flex items-center justify-center hover:bg-seller-600 transition-colors shadow-sm"
+              disabled={finalizing}
+              className={`w-10 h-10 rounded-xl bg-seller-500 text-white flex items-center justify-center hover:bg-seller-600 transition-colors shadow-sm ${finalizing ? 'opacity-50 cursor-wait' : ''}`}
               title="Finalizar compras"
             >
-              <HiOutlineCheck className="w-5 h-5" />
+              {finalizing ? (
+                <svg className="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                </svg>
+              ) : (
+                <HiOutlineCheck className="w-5 h-5" />
+              )}
             </button>
           </div>
         </div>
@@ -639,7 +691,7 @@ export default function ShoppingListPage() {
 // PRODUCT ITEM CARD
 // ============================================================
 
-function ProductItemCard({ item, onTogglePurchased, onDelete, onQuantityChange }) {
+function ProductItemCard({ item, onTogglePurchased, onDelete, onQuantityChange, isToggling }) {
   const navigate = useNavigate();
   const product = item.producto;
   const tienda = product?.tienda;
@@ -747,8 +799,10 @@ function ProductItemCard({ item, onTogglePurchased, onDelete, onQuantityChange }
         <div className="flex items-start gap-3">
           {/* Checkbox (toggleable) */}
           <button
-            onClick={(e) => { e.stopPropagation(); onTogglePurchased(item); }}
+            onClick={(e) => { e.stopPropagation(); if (!isToggling) onTogglePurchased(item); }}
+            disabled={isToggling}
             className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${
+              isToggling ? 'opacity-50 cursor-wait' :
               item.comprado
                 ? 'bg-seller-500 border-seller-500 text-white hover:bg-seller-400'
                 : 'border-gray-300 hover:border-primary-400'
@@ -863,7 +917,7 @@ function ProductItemCard({ item, onTogglePurchased, onDelete, onQuantityChange }
 // MANUAL ITEM CARD
 // ============================================================
 
-function ManualItemCard({ item, onTogglePurchased, onDelete }) {
+function ManualItemCard({ item, onTogglePurchased, onDelete, isToggling }) {
   return (
     <div
       className={`bg-surface rounded-xl border shadow-sm overflow-hidden transition-all duration-200 ${
@@ -873,8 +927,10 @@ function ManualItemCard({ item, onTogglePurchased, onDelete }) {
       <div className="px-3.5 py-3 flex items-center gap-3">
         {/* Checkbox (toggleable) */}
         <button
-          onClick={() => onTogglePurchased(item)}
+          onClick={() => { if (!isToggling) onTogglePurchased(item); }}
+          disabled={isToggling}
           className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+            isToggling ? 'opacity-50 cursor-wait' :
             item.comprado
               ? 'bg-seller-500 border-seller-500 text-white hover:bg-seller-400'
               : 'border-gray-300 hover:border-primary-400'
