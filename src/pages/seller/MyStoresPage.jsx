@@ -46,7 +46,12 @@ export default function MyStoresPage() {
   const loadStores = async (signal) => {
     setLoading(true);
     try {
-      const { data } = await sellerService.getMyStores(signal ? { signal } : undefined);
+      // Solo propagar el signal si es un AbortSignal real — evita que un event handler
+      // (que pasa SyntheticEvent como primer arg) lo corrompa y axios falle.
+      const opts = (typeof AbortSignal !== 'undefined' && signal instanceof AbortSignal)
+        ? { signal }
+        : undefined;
+      const { data } = await sellerService.getMyStores(opts);
       setStores(data?.data || []);
     } catch (err) {
       if (err.name !== 'CanceledError') {
@@ -473,7 +478,7 @@ function PendingStoreCard({ store, onDelete, onRefresh, deleting }) {
           Tu solicitud está siendo revisada. Te notificaremos pronto.
         </p>
         <button
-          onClick={onRefresh}
+          onClick={() => onRefresh()}
           className="flex items-center gap-1 mt-1.5 text-xs font-semibold text-warning-600 hover:text-warning-700 transition-colors"
         >
           <HiOutlineRefresh className="w-3.5 h-3.5" />
@@ -568,8 +573,8 @@ function RatingsModal({ open, store, ratings, loading, onClose }) {
   return (
     <Modal open={open} onClose={onClose} title="" maxWidth="max-w-md">
       {/* Custom purple header */}
-      <div className="-m-4 -mt-[4.5rem]">
-        <div className="gradient-primary rounded-t-2xl px-6 py-5 text-center">
+      <div className="-m-4">
+        <div className="gradient-primary rounded-t-2xl px-6 py-5 text-center pr-12">
           <h3 className="text-lg font-display font-bold text-white">
             Calificaciones{store ? ` - ${store.nombre}` : ''}
           </h3>
@@ -623,8 +628,8 @@ function ApprovalResultModal({ open, status, nombreTienda, motivo, onClose }) {
 
   return (
     <Modal open={open} onClose={onClose} title="" maxWidth="max-w-sm">
-      <div className="-m-4 -mt-[4.5rem]">
-        <div className={`rounded-t-2xl px-6 py-6 text-center ${isApproved ? 'bg-gradient-to-br from-green-500 to-emerald-600' : 'bg-gradient-to-br from-red-500 to-rose-600'}`}>
+      <div className="-m-4">
+        <div className={`rounded-t-2xl px-6 py-6 text-center pr-12 ${isApproved ? 'bg-gradient-to-br from-green-500 to-emerald-600' : 'bg-gradient-to-br from-red-500 to-rose-600'}`}>
           {isApproved ? (
             <HiOutlineCheckCircle className="w-14 h-14 text-white mx-auto mb-2" />
           ) : (

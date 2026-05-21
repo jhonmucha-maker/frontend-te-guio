@@ -4,6 +4,8 @@ import { useAuth } from '../../features/auth/useAuth';
 import { buyerService } from '../../services/buyerService';
 import { catalogService } from '../../services/catalogService';
 import { formatCurrency } from '../../utils/formatters';
+import { SSE_EVENTS } from '../../utils/constants';
+import { useSSEListener } from '../../hooks/useSSEListener';
 import { openExternal } from '../../utils/navigation';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import EmptyState from '../../components/ui/EmptyState';
@@ -114,6 +116,9 @@ export default function ShoppingListPage() {
   useEffect(() => {
     loadList();
   }, []);
+
+  // Refresca al instante cuando admin/vendedor cambia visibilidad de una tienda
+  useSSEListener(SSE_EVENTS.SHOPPING_LIST_UPDATED, () => loadList(true));
 
   const loadList = async (silent = false) => {
     if (!silent) setLoading(true);

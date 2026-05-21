@@ -374,7 +374,7 @@ function PaymentModal({ open, plan, storeId, paymentMethods, onClose, onSuccess 
 
   return (
     <Modal open={open} onClose={onClose} title="" maxWidth="max-w-md">
-      <div className="-m-4 -mt-[4.5rem]">
+      <div className="-m-4">
         {/* Header */}
         <div className="px-6 pt-6 pb-4 text-center relative">
           <div className="w-14 h-14 bg-warning-100 rounded-full flex items-center justify-center mx-auto mb-3">

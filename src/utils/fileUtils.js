@@ -1,6 +1,28 @@
 const MAX_DIMENSION = 1200;
 const JPEG_QUALITY = 0.85;
 
+// ---------- Detección de tipo de archivo ----------
+// Devuelve 'pdf' | 'image' | 'other' a partir de un archivo de Wasabi (puede tener
+// `tipo_archivo` ya guardado en BD, o solo `url_archivo`).
+export const detectFileKind = (archivo) => {
+  if (!archivo) return 'other';
+  const tipo = (archivo.tipo_archivo || '').toUpperCase();
+  if (tipo === 'PDF') return 'pdf';
+  if (tipo === 'IMAGE' || tipo === 'IMG') return 'image';
+  const url = (archivo.url_archivo || archivo.url || archivo) + '';
+  const cleanUrl = url.split('?')[0].toLowerCase();
+  if (cleanUrl.endsWith('.pdf')) return 'pdf';
+  if (/\.(jpe?g|png|webp|gif|bmp|heic|heif)$/i.test(cleanUrl)) return 'image';
+  return 'other';
+};
+
+// Construye la URL de descarga forzada desde la URL de visualización del proxy.
+export const buildDownloadUrl = (url) => {
+  if (!url) return '';
+  const sep = url.includes('?') ? '&' : '?';
+  return `${url}${sep}download=1`;
+};
+
 /**
  * Compresses an image file using canvas and returns a small in-memory Blob.
  *

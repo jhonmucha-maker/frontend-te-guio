@@ -1,0 +1,32 @@
+# Dependencias y artefactos locales — se reconstruyen dentro del contenedor
+node_modules
+dist
+dist-ssr
+
+# Plataformas nativas (no necesarias para el deploy web/SPA)
+android
+ios
+
+# Git y editor
+.git
+.gitignore
+.vscode
+.idea
+.DS_Store
+
+# Entornos locales (Railway inyecta sus propias variables)
+.env
+.env.local
+.env.development
+.env.example
+
+# Logs y temporales
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Docs / config no necesarios en runtime
+README.md
+.railwayignore
+.nixpacks

@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { buyerService } from '../../services/buyerService';
 import { formatCurrency } from '../../utils/formatters';
-import { resolveFileUrl } from '../../utils/constants';
+import { resolveFileUrl, SSE_EVENTS } from '../../utils/constants';
+import { useSSEListener } from '../../hooks/useSSEListener';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import EmptyState from '../../components/ui/EmptyState';
 import toast from 'react-hot-toast';
@@ -25,6 +26,9 @@ export default function FavoritesPage() {
   useEffect(() => {
     loadFavorites();
   }, []);
+
+  // Refresca al instante cuando admin/vendedor cambia visibilidad de una tienda
+  useSSEListener(SSE_EVENTS.FAVORITES_UPDATED, () => loadFavorites());
 
   const loadFavorites = async () => {
     setLoading(true);

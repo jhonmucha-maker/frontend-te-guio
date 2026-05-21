@@ -347,8 +347,8 @@ function ProductCard({ product, onRatings, onDelete, onEdit, deleting, onGoToSto
 function RatingsModal({ open, product, ratings, loading, onClose }) {
   return (
     <Modal open={open} onClose={onClose} title="" maxWidth="max-w-md">
-      <div className="-m-4 -mt-[4.5rem]">
-        <div className="gradient-primary rounded-t-2xl px-6 py-5 text-center">
+      <div className="-m-4">
+        <div className="gradient-primary rounded-t-2xl px-6 py-5 text-center pr-12">
           <h3 className="text-lg font-display font-bold text-white">
             Calificaciones{product ? ` - ${product.nombre}` : ''}
           </h3>

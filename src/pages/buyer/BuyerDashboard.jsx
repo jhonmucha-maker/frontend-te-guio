@@ -73,6 +73,7 @@ export default function BuyerDashboard() {
           bgColor: 'bg-gray-100',
           iconColor: 'text-gray-400',
           disabled: true,
+          hidden: true,
         },
         {
           label: 'Favoritos',
@@ -262,16 +263,19 @@ export default function BuyerDashboard() {
       </div>
 
       {/* Sections */}
-      {sections.map((section, sIdx) => (
-        <div key={section.title} className={`${sIdx < sections.length - 1 ? 'mb-6' : ''} animate-slide-up`}>
-          <p className="section-title mb-3 px-1">{section.title}</p>
-          <div className="bg-surface rounded-2xl shadow-card border border-gray-100/80 overflow-hidden">
-            {section.items.map((item, iIdx) =>
-              renderItem(item, iIdx === section.items.length - 1)
-            )}
+      {sections.map((section, sIdx) => {
+        const visibleItems = section.items.filter((item) => !item.hidden);
+        return (
+          <div key={section.title} className={`${sIdx < sections.length - 1 ? 'mb-6' : ''} animate-slide-up`}>
+            <p className="section-title mb-3 px-1">{section.title}</p>
+            <div className="bg-surface rounded-2xl shadow-card border border-gray-100/80 overflow-hidden">
+              {visibleItems.map((item, iIdx) =>
+                renderItem(item, iIdx === visibleItems.length - 1)
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

@@ -31,7 +31,7 @@ if (Capacitor.isNativePlatform()) {
   }).catch(() => {});
 }
 
-const TOAST_LIMIT = 2;
+const TOAST_LIMIT = 3;
 
 function ToastLimiter() {
   const { toasts } = useToasterStore();
@@ -53,8 +53,15 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <App />
         <Toaster
           position="top-right"
+          gutter={10}
           containerStyle={{
+            // Top offset: respeta status bar Android + notch iOS
             top: 'calc(8px + var(--sat, 0px))',
+            // Bottom offset: respeta nav bar Android (--android-nav-h, seteada por NavigationBar plugin)
+            // + home indicator iOS (--sab). Garantiza que ningún toast quede bajo la barra de navegación.
+            bottom: 'calc(8px + var(--android-nav-h, 0px) + var(--sab, 0px))',
+            // z-index sobre el strip body::after (99999) que cubre la nav bar transparente.
+            zIndex: 1000000,
           }}
           toastOptions={{
             duration: 2000,

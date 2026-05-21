@@ -70,4 +70,6 @@ export const AUTH_ERROR_CODES = {
 // Eventos SSE (deben coincidir con backend/config/eventNames.js)
 export const SSE_EVENTS = {
   ACCOUNT_DISABLED: 'account.disabled',
+  FAVORITES_UPDATED: 'favorites.updated',
+  SHOPPING_LIST_UPDATED: 'shopping_list.updated',
 };

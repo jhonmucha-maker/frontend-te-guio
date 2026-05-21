@@ -166,9 +166,14 @@ export default function SellerProfilePage() {
             <div>
               <label className="block text-xs font-medium text-gray-500 mb-1">Teléfono *</label>
               <input
-                type="text"
+                type="tel"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={form.telefono}
-                onChange={(e) => updateField('telefono', e.target.value)}
+                onChange={(e) => updateField('telefono', e.target.value.replace(/\D/g, ''))}
+                onKeyDown={(e) => {
+                  if (['e', 'E', '+', '-', '.', ','].includes(e.key)) e.preventDefault();
+                }}
                 className="input-field rounded-xl text-sm w-full"
               />
             </div>

@@ -1,8 +1,13 @@
 import toast from 'react-hot-toast';
 import { HiCheckCircle } from 'react-icons/hi';
 
+// Contador local — garantiza id único por invocación. Sin esto, dos llamadas
+// rapid-fire podrían colapsar en un solo toast (react-hot-toast deduplica por id
+// y aunque genere uno por defecto, fechas/colisiones pueden ocurrir).
+let snackbarCounter = 0;
+
 export function showSuccessSnackbar(message = 'Producto agregado a la lista') {
-  toast.custom(
+  return toast.custom(
     (t) => (
       <div
         className={`${
@@ -20,8 +25,9 @@ export function showSuccessSnackbar(message = 'Producto agregado a la lista') {
       </div>
     ),
     {
+      id: `snackbar-${++snackbarCounter}`,
       position: 'bottom-center',
       duration: 2000,
-    }
+    },
   );
 }

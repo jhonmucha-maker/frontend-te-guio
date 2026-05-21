@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { adminService } from '../../services/adminService';
 import { formatCurrency, formatDate } from '../../utils/formatters';
+import { useSSEListener } from '../../hooks/useSSEListener';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import EmptyState from '../../components/ui/EmptyState';
 import {
@@ -15,21 +16,29 @@ export default function FinancePage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const [sumRes, txRes] = await Promise.all([
-          adminService.getFinanceSummary(),
-          adminService.getTransactions(),
-        ]);
-        setSummary(sumRes.data);
-        setTransactions(txRes.data);
-      } catch {} finally {
-        setLoading(false);
-      }
-    };
-    load();
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [sumRes, txRes] = await Promise.all([
+        adminService.getFinanceSummary(),
+        adminService.getTransactions(),
+      ]);
+      setSummary(sumRes.data);
+      setTransactions(txRes.data);
+    } catch (err) {
+      console.error('Error cargando finanzas:', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  // Refresca al instante cuando admin aprueba/rechaza una solicitud o
+  // cuando se elimina un vendedor/usuario (backend emite SUBSCRIPTION_REQUEST_UPDATED).
+  useSSEListener('subscription.request.updated', load);
 
   const activeTransactions = transactions.filter(t => t.estado === 'ACTIVE');
   const expiredTransactions = transactions.filter(t => t.estado !== 'ACTIVE');

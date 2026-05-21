@@ -1,4 +1,4 @@
-package com.teguio.marketplace;
+package com.teguio.app;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;

@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">Te Guio</string>
     <string name="title_activity_main">Te Guio</string>
-    <string name="package_name">com.teguio.marketplace</string>
-    <string name="custom_url_scheme">com.teguio.marketplace</string>
+    <string name="package_name">com.teguio.app</string>
+    <string name="custom_url_scheme">com.teguio.app</string>
 </resources>

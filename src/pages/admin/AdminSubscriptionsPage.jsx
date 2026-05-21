@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { adminService } from '../../services/adminService';
 import { useSSEListener } from '../../hooks/useSSEListener';
 import { formatDateTime, formatDate, formatCurrency } from '../../utils/formatters';
@@ -9,10 +10,13 @@ import Modal from '../../components/ui/Modal';
 import toast from 'react-hot-toast';
 import {
   HiOutlineCreditCard, HiOutlineCheck, HiOutlineX, HiOutlineClock,
-  HiOutlineSearch, HiOutlineCalendar, HiOutlinePhotograph, HiOutlineTrash,
+  HiOutlineSearch, HiOutlineCalendar, HiOutlineTrash,
+  HiOutlineDownload, HiOutlineExternalLink, HiOutlineDocument,
 } from 'react-icons/hi';
 
 import { resolveFileUrl } from '../../utils/constants';
+import { detectFileKind, buildDownloadUrl } from '../../utils/fileUtils';
+import { openExternal } from '../../utils/navigation';
 
 export default function AdminSubscriptionsPage() {
   const [data, setData] = useState([]);
@@ -169,12 +173,31 @@ export default function AdminSubscriptionsPage() {
   };
 
   const getComprobante = (item) => {
-    const archivo = item.archivos?.find(a => a.es_comprobante);
-    return archivo?.url_archivo || item.archivos?.[0]?.url_archivo || null;
+    return item.archivos?.find(a => a.es_comprobante) || item.archivos?.[0] || null;
   };
 
   const getArchivosAdicionales = (item) => {
     return (item.archivos || []).filter(a => !a.es_comprobante);
+  };
+
+  // Abre la vista previa: en APK usa el visor nativo del sistema (Custom Tabs / app PDF
+  // del dispositivo), porque el WebView de Android no renderiza PDFs en iframes.
+  // En navegador web abre el modal con iframe (Chrome trae visor PDF integrado).
+  const openPreview = (archivo) => {
+    if (!archivo) return;
+    const url = resolveFileUrl(archivo.url_archivo);
+    const kind = detectFileKind(archivo);
+    if (kind === 'pdf' && Capacitor.isNativePlatform()) {
+      openExternal(url);
+      return;
+    }
+    setPreviewDoc({ url, type: kind === 'image' ? 'image' : 'pdf', filename: archivo.url_archivo?.split('/').pop() });
+  };
+
+  const downloadFile = (archivo) => {
+    if (!archivo) return;
+    const url = buildDownloadUrl(resolveFileUrl(archivo.url_archivo));
+    openExternal(url);
   };
 
   return (
@@ -366,7 +389,9 @@ export default function AdminSubscriptionsPage() {
       <Modal open={!!selectedItem} onClose={() => setSelectedItem(null)} title="Detalle de Suscripción" maxWidth="max-w-md">
         {selectedItem && (() => {
           const isPending = selectedItem.estado === 'PENDIENTE';
-          const comprobanteUrl = getComprobante(selectedItem);
+          const comprobante = getComprobante(selectedItem);
+          const comprobanteKind = detectFileKind(comprobante);
+          const comprobanteUrl = comprobante ? resolveFileUrl(comprobante.url_archivo) : null;
           const galeria = selectedItem.tbl_tiendas?.tbl_galerias;
           return (
             <div className="space-y-4">
@@ -392,16 +417,43 @@ export default function AdminSubscriptionsPage() {
               </div>
 
               {/* Comprobante de Pago */}
-              {comprobanteUrl && (
+              {comprobante && (
                 <div>
                   <p className="text-sm font-bold text-gray-800 mb-3">Comprobante de Pago</p>
-                  {comprobanteUrl.endsWith('.pdf') ? (
-                    <button onClick={() => setPreviewDoc({ url: resolveFileUrl(comprobanteUrl), type: 'pdf' })} className="flex flex-col items-center p-4 bg-gray-50 hover:bg-gray-100 transition-colors rounded-xl border border-gray-200 w-full cursor-pointer">
-                      <HiOutlinePhotograph className="w-10 h-10 text-red-500 mb-1" />
-                      <span className="text-sm text-primary-600 font-medium">Ver PDF del comprobante</span>
-                    </button>
+                  {comprobanteKind === 'image' ? (
+                    <div className="space-y-2">
+                      <img
+                        src={comprobanteUrl}
+                        alt="Comprobante"
+                        className="w-full rounded-xl border border-gray-200 cursor-pointer"
+                        onClick={() => openPreview(comprobante)}
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      />
+                      <button
+                        onClick={() => downloadFile(comprobante)}
+                        className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold text-gray-700 border border-gray-200 bg-surface hover:bg-gray-50 transition-colors"
+                      >
+                        <HiOutlineDownload className="w-4 h-4" /> Descargar
+                      </button>
+                    </div>
                   ) : (
-                    <img src={resolveFileUrl(comprobanteUrl)} alt="Comprobante" className="w-full rounded-xl border border-gray-200 cursor-pointer" onClick={() => setPreviewDoc({ url: resolveFileUrl(comprobanteUrl), type: 'image' })} />
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => openPreview(comprobante)}
+                        className="flex flex-col items-center p-4 bg-gray-50 hover:bg-gray-100 transition-colors rounded-xl border border-gray-200 w-full cursor-pointer"
+                      >
+                        <HiOutlineDocument className="w-10 h-10 text-red-500 mb-1" />
+                        <span className="text-sm text-primary-600 font-medium">
+                          {comprobanteKind === 'pdf' ? 'Ver PDF del comprobante' : 'Abrir archivo'}
+                        </span>
+                      </button>
+                      <button
+                        onClick={() => downloadFile(comprobante)}
+                        className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold text-gray-700 border border-gray-200 bg-surface hover:bg-gray-50 transition-colors"
+                      >
+                        <HiOutlineDownload className="w-4 h-4" /> Descargar
+                      </button>
+                    </div>
                   )}
                 </div>
               )}
@@ -411,18 +463,36 @@ export default function AdminSubscriptionsPage() {
                 <div>
                   <p className="text-sm font-bold text-gray-800 mb-3">Documentos Adicionales ({getArchivosAdicionales(selectedItem).length})</p>
                   <div className="grid grid-cols-2 gap-2">
-                    {getArchivosAdicionales(selectedItem).map((archivo) => (
-                      <div key={archivo.id} className="border border-gray-200 rounded-xl overflow-hidden">
-                        {archivo.url_archivo?.endsWith('.pdf') ? (
-                          <button onClick={() => setPreviewDoc({ url: resolveFileUrl(archivo.url_archivo), type: 'pdf' })} className="flex flex-col items-center p-4 hover:bg-gray-50 transition-colors w-full">
-                            <HiOutlinePhotograph className="w-8 h-8 text-red-500 mb-1" />
-                            <span className="text-xs text-primary-600 font-medium">Ver PDF</span>
+                    {getArchivosAdicionales(selectedItem).map((archivo) => {
+                      const archivoKind = detectFileKind(archivo);
+                      const archivoUrl = resolveFileUrl(archivo.url_archivo);
+                      return (
+                        <div key={archivo.id} className="border border-gray-200 rounded-xl overflow-hidden flex flex-col">
+                          {archivoKind === 'image' ? (
+                            <img
+                              src={archivoUrl}
+                              alt="Documento adicional"
+                              className="w-full h-32 object-cover cursor-pointer"
+                              onClick={() => openPreview(archivo)}
+                              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                            />
+                          ) : (
+                            <button onClick={() => openPreview(archivo)} className="flex flex-col items-center p-4 hover:bg-gray-50 transition-colors w-full">
+                              <HiOutlineDocument className="w-8 h-8 text-red-500 mb-1" />
+                              <span className="text-xs text-primary-600 font-medium">
+                                {archivoKind === 'pdf' ? 'Ver PDF' : 'Abrir'}
+                              </span>
+                            </button>
+                          )}
+                          <button
+                            onClick={() => downloadFile(archivo)}
+                            className="flex items-center justify-center gap-1 py-1.5 text-[11px] font-semibold text-gray-600 border-t border-gray-100 bg-gray-50 hover:bg-gray-100 transition-colors"
+                          >
+                            <HiOutlineDownload className="w-3.5 h-3.5" /> Descargar
                           </button>
-                        ) : (
-                          <img src={resolveFileUrl(archivo.url_archivo)} alt="Documento adicional" className="w-full h-32 object-cover cursor-pointer" onClick={() => setPreviewDoc({ url: resolveFileUrl(archivo.url_archivo), type: 'image' })} />
-                        )}
-                      </div>
-                    ))}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -507,7 +577,7 @@ export default function AdminSubscriptionsPage() {
                 <HiOutlineX className="w-5 h-5 text-gray-500" />
               </button>
             </div>
-            <div className="flex-1 min-h-0 p-2" style={{ height: previewDoc.type === 'pdf' ? '75vh' : 'auto' }}>
+            <div className="flex-1 min-h-0 p-2" style={{ height: previewDoc.type === 'pdf' ? '70vh' : 'auto' }}>
               {previewDoc.type === 'pdf' ? (
                 <iframe
                   src={previewDoc.url}
@@ -523,6 +593,21 @@ export default function AdminSubscriptionsPage() {
                   />
                 </div>
               )}
+            </div>
+            {/* Acciones: abrir externo / descargar — útiles si el iframe no renderiza */}
+            <div className="flex items-center justify-end gap-2 p-3 border-t border-gray-200 flex-shrink-0">
+              <button
+                onClick={() => openExternal(previewDoc.url)}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-gray-700 border border-gray-200 bg-surface hover:bg-gray-50 transition-colors"
+              >
+                <HiOutlineExternalLink className="w-4 h-4" /> Abrir externo
+              </button>
+              <button
+                onClick={() => openExternal(buildDownloadUrl(previewDoc.url))}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-white bg-primary-600 hover:bg-primary-700 transition-colors"
+              >
+                <HiOutlineDownload className="w-4 h-4" /> Descargar
+              </button>
             </div>
           </div>
         </div>
