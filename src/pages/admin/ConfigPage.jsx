@@ -45,7 +45,17 @@ const sections = [
   ]},
   { key: 'system-config', label: 'Config. Sistema', noCreate: true, noDelete: true, fields: [
     { name: 'clave', label: 'Parametro', readOnly: true, displayFormat: (v) => {
-      const labels = { dias_alerta_vencimiento_suscripcion: 'Dias alerta vencimiento suscripcion (email)', dias_filtro_por_vencer_suscripcion: 'Dias filtro "por vencer" suscripciones' };
+      const labels = {
+        dias_alerta_vencimiento_suscripcion: 'Dias alerta vencimiento suscripcion (email)',
+        dias_filtro_por_vencer_suscripcion: 'Dias filtro "por vencer" suscripciones',
+        android_min_version_code: '[App Android] versionCode minimo (bloquea si la app instalada es menor)',
+        android_latest_version_code: '[App Android] versionCode mas reciente disponible',
+        android_latest_version_name: '[App Android] versionName mas reciente (ej: 1.1, 1.2, 2.0)',
+        android_force_update_enabled: '[App Android] Activar actualizacion forzada (true / false)',
+        android_play_store_url: '[App Android] URL en Play Store',
+        android_update_title: '[App Android] Titulo del modal de actualizacion',
+        android_update_message: '[App Android] Mensaje del modal de actualizacion',
+      };
       return labels[v] || v;
     }},
     { name: 'valor', label: 'Valor', required: true },

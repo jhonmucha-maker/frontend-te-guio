@@ -8,6 +8,7 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 import NavigationBar from './utils/navigationBar';
 import App from './App';
 import { AuthProvider } from './features/auth/AuthContext';
+import VersionGuard from './components/guards/VersionGuard';
 import './styles/tailwind.css';
 
 // Configure status bar style for native platforms.
@@ -50,7 +51,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <App />
+        <VersionGuard>
+          <App />
+        </VersionGuard>
         <Toaster
           position="top-right"
           gutter={10}
