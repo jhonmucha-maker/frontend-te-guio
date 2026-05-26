@@ -20,12 +20,14 @@ import {
 import { HiOutlineChatBubbleLeftRight } from 'react-icons/hi2';
 import logoImg from '../../assets/logo-Photoroom.png';
 import { resolveFileUrl } from '../../utils/constants';
+import { useAppVersion } from '../../hooks/useAppVersion';
 
 export default function BuyerDashboard() {
   const { usuario, logout, syncUser } = useAuth();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
+  const appVersion = useAppVersion();
 
   const handleLogout = async () => {
     await logout();
@@ -127,7 +129,7 @@ export default function BuyerDashboard() {
       items: [
         {
           label: 'Acerca del aplicativo',
-          subtitle: 'Version 1.0.0',
+          subtitle: appVersion ? `Versión ${appVersion}` : 'Acerca del aplicativo',
           icon: HiOutlineInformationCircle,
           to: null,
           bgColor: 'bg-gray-100',

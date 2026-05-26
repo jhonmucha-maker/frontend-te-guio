@@ -29,6 +29,7 @@ import logoImg from '../../assets/logo-Photoroom.png';
 import { useAdminPendingCounts } from '../../hooks/useAdminPendingCounts';
 import { useShoppingCount } from '../../hooks/useShoppingCount';
 import { useTicketUnreadCount } from '../../hooks/useTicketUnreadCount';
+import { useAppVersion } from '../../hooks/useAppVersion';
 
 const buyerLinks = [
   { section: 'TE GUÍO', items: [
@@ -106,6 +107,7 @@ export default function Sidebar({ open, onClose }) {
   const adminCounts = useAdminPendingCounts();
   const shoppingCount = useShoppingCount();
   const unreadTickets = useTicketUnreadCount();
+  const appVersion = useAppVersion();
   const badgeCounts = { ...adminCounts, shoppingCount, unreadTickets };
 
   const adminLinks = useMemo(() => getAdminLinks(usuario), [usuario]);
@@ -219,7 +221,7 @@ export default function Sidebar({ open, onClose }) {
 
         {/* Footer */}
         <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-gray-100 bg-surface">
-          <p className="text-[10px] text-gray-400 text-center font-medium">Version 1.0.0</p>
+          <p className="text-[10px] text-gray-400 text-center font-medium">{appVersion ? `Versión ${appVersion}` : ''}</p>
         </div>
       </aside>
     </>
