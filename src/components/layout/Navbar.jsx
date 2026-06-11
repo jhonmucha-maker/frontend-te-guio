@@ -45,7 +45,6 @@ const ADMIN_PAGE_TITLES = {
   '/admin/dashboard': 'Dashboard',
   '/admin/compradores': 'Compradores',
   '/admin/vendedores': 'Vendedores',
-  '/admin/solicitudes-registro': 'Solicitudes de Registro',
   '/admin/solicitudes-productos': 'Solicitudes de Productos',
   '/admin/solicitudes-tiendas': 'Solicitudes de Tiendas',
   '/admin/gestion-productos': 'Gestion de Productos',

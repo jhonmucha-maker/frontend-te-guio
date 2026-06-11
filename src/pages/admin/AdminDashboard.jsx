@@ -8,7 +8,6 @@ import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import {
   HiOutlineUsers,
   HiOutlineOfficeBuilding,
-  HiOutlineClipboardList,
   HiOutlineCube,
   HiOutlineCreditCard,
   HiOutlineCurrencyDollar,
@@ -78,18 +77,6 @@ export default function AdminDashboard() {
       to: '/admin/vendedores',
     },
     {
-      label: 'Solicitudes de Registro',
-      value: data?.pendingSellers || 0,
-      subtitle: 'Nuevos vendedores',
-      icon: HiOutlineClipboardList,
-      borderColor: 'border-t-warning-500',
-      iconBg: 'bg-warning-100',
-      iconColor: 'text-warning-600',
-      valueColor: 'text-warning-600',
-      btnBg: 'bg-warning-500',
-      to: '/admin/solicitudes-registro',
-    },
-    {
       label: 'Solicitudes de Tiendas',
       value: data?.pendingStores || 0,
       subtitle: 'Nuevas tiendas',
@@ -153,7 +140,6 @@ export default function AdminDashboard() {
 
   /* Acciones pendientes - solo las que tienen valor > 0 */
   const pendingActions = [
-    { value: data?.pendingSellers || 0, label: 'Solicitud(es) de registro', to: '/admin/solicitudes-registro', color: 'bg-warning-500' },
     { value: data?.pendingStores || 0, label: 'Solicitud(es) de tiendas', to: '/admin/solicitudes-tiendas', color: 'bg-warning-500' },
     { value: data?.pendingProducts || 0, label: 'Solicitud(es) de productos', to: '/admin/solicitudes-productos', color: 'bg-warning-500' },
     { value: data?.pendingSubscriptions || 0, label: 'Suscripción(es) pendiente(s)', to: '/admin/suscripciones', color: 'bg-warning-500' },

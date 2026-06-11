@@ -28,6 +28,19 @@ const FILTERS = [
   { key: 'RECHAZADO', label: 'Rechazados' },
 ];
 
+// Persistimos los filtros en sessionStorage para que sobrevivan al desmontaje
+// de la pagina al navegar (p. ej. crear un producto y regresar al listado).
+const FILTERS_STORAGE_KEY = 'sellerProductsFilters';
+
+function loadStoredFilters() {
+  try {
+    const raw = sessionStorage.getItem(FILTERS_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
 function getProductImageUrl(product) {
   const foto = product.fotos?.[0];
   if (!foto) return null;
@@ -39,11 +52,11 @@ export default function MyProductsPage() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState('TODOS');
+  const [search, setSearch] = useState(() => loadStoredFilters().search || '');
+  const [filter, setFilter] = useState(() => loadStoredFilters().filter || 'TODOS');
   const [deleting, setDeleting] = useState(null);
   const [ratingsModal, setRatingsModal] = useState({ open: false, product: null, ratings: [], loading: false });
-  const [storeFilter, setStoreFilter] = useState('');
+  const [storeFilter, setStoreFilter] = useState(() => loadStoredFilters().storeFilter || '');
   const [stores, setStores] = useState([]);
   const [previewData, setPreviewData] = useState(null); // { images: string[], startIndex: number }
 
@@ -64,6 +77,16 @@ export default function MyProductsPage() {
       setStores((data?.data || []).filter((s) => s.estado_aprobacion === 'APROBADO'));
     }).catch(() => {});
   }, []);
+
+  // Guardamos los filtros activos para restaurarlos al regresar a la pagina.
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(
+        FILTERS_STORAGE_KEY,
+        JSON.stringify({ search, filter, storeFilter })
+      );
+    } catch {}
+  }, [search, filter, storeFilter]);
 
   useSSEListener(['approval.product.approved', 'approval.product.rejected', 'approval.product.updated'], loadProducts);
 

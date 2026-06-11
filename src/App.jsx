@@ -51,7 +51,6 @@ import ApprovalsPage from './pages/admin/ApprovalsPage';
 import UserManagementPage from './pages/admin/UserManagementPage';
 import BuyersPage from './pages/admin/BuyersPage';
 import SellersPage from './pages/admin/SellersPage';
-import SellerRequestsPage from './pages/admin/SellerRequestsPage';
 import StoreRequestsPage from './pages/admin/StoreRequestsPage';
 import ProductRequestsPage from './pages/admin/ProductRequestsPage';
 import StoreManagementPage from './pages/admin/StoreManagementPage';
@@ -189,7 +188,6 @@ function App() {
         {/* New dedicated admin pages */}
         <Route path="compradores" element={<BuyersPage />} />
         <Route path="vendedores" element={<SellersPage />} />
-        <Route path="solicitudes-registro" element={<SellerRequestsPage />} />
         <Route path="solicitudes-productos" element={<ProductRequestsPage />} />
         <Route path="solicitudes-tiendas" element={<StoreRequestsPage />} />
         <Route path="gestion-productos" element={<ProductManagementPage />} />

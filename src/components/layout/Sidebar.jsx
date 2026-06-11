@@ -12,7 +12,6 @@ import {
   HiOutlineCube,
   HiOutlineCreditCard,
   HiOutlineUsers,
-  HiOutlineCheckCircle,
   HiOutlineCurrencyDollar,
   HiOutlineCog,
   HiOutlineDocumentReport,
@@ -85,7 +84,6 @@ const getAdminLinks = (usuario) => {
       { to: '/admin/vendedores', label: 'Vendedores', icon: HiOutlineOfficeBuilding },
     ]},
     { section: 'SOLICITUDES', items: [
-      { to: '/admin/solicitudes-registro', label: 'Solicitudes de Registro', icon: HiOutlineCheckCircle, badgeKey: 'pendingSellers' },
       { to: '/admin/solicitudes-productos', label: 'Solicitudes de Productos', icon: HiOutlineCube, badgeKey: 'pendingProducts' },
       { to: '/admin/solicitudes-tiendas', label: 'Solicitudes de Tiendas', icon: HiOutlineOfficeBuilding, badgeKey: 'pendingStores' },
     ]},

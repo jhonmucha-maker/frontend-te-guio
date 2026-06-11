@@ -344,18 +344,13 @@ function PaymentModal({ open, plan, storeId, paymentMethods, onClose, onSuccess 
       toast.error('Selecciona un método de pago');
       return;
     }
-    if (!receipt) {
-      toast.error('Sube el comprobante de pago');
-      return;
-    }
-
     setSubmitting(true);
     try {
       const fd = new FormData();
       fd.append('id_tienda', storeId);
       fd.append('id_plan', plan.id.toString());
       fd.append('id_metodo_pago', selectedMethod);
-      fd.append('comprobante', receipt.blob, receipt.name);
+      if (receipt) fd.append('comprobante', receipt.blob, receipt.name);
       additionalImages.forEach((img) => fd.append('imagenes_adicionales', img.blob, img.name));
 
       await sellerService.requestSubscription(fd);
@@ -445,7 +440,7 @@ function PaymentModal({ open, plan, storeId, paymentMethods, onClose, onSuccess 
           </div>
 
           {/* Step 2: Receipt upload */}
-          <p className="text-sm font-bold text-gray-800 mb-3">2. Sube el comprobante de pago</p>
+          <p className="text-sm font-bold text-gray-800 mb-3">2. Sube el comprobante de pago (opcional)</p>
           <div
             onClick={() => setShowUploadOptions(true)}
             className="border-2 border-dashed border-gray-300 rounded-2xl p-6 text-center cursor-pointer hover:border-primary-300 transition-colors mb-6"
@@ -511,7 +506,7 @@ function PaymentModal({ open, plan, storeId, paymentMethods, onClose, onSuccess 
             <button
               type="button"
               onClick={handleSubmit}
-              disabled={submitting || !receipt || !selectedMethod}
+              disabled={submitting || !selectedMethod}
               className="w-full py-3 rounded-xl text-sm font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 bg-green-500 text-white hover:bg-green-600 disabled:bg-gray-200 disabled:text-gray-400"
             >
               <HiOutlineCheck className="w-4 h-4" />

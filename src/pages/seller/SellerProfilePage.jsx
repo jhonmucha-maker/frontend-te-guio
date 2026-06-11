@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sellerService } from '../../services/sellerService';
 import { useAuth } from '../../features/auth/useAuth';
-import { useSSEListener } from '../../hooks/useSSEListener';
 import { useTheme } from '../../hooks/useTheme';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
@@ -55,8 +54,6 @@ export default function SellerProfilePage() {
   useEffect(() => {
     loadProfile();
   }, []);
-
-  useSSEListener(['approval.seller.approved', 'approval.seller.rejected'], loadProfile);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

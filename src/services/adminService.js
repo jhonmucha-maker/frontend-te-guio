@@ -5,10 +5,6 @@ export const adminService = {
   getDashboard: () => apiClient.get('/admin/dashboard'),
 
   // Aprobaciones
-  getPendingSellers: () => apiClient.get('/admin/approvals/sellers'),
-  approveSeller: (id, data) =>
-    apiClient.patch(`/admin/approvals/sellers/${id}`, data),
-
   getPendingStores: () => apiClient.get('/admin/approvals/stores'),
   approveStore: (id, data) =>
     apiClient.patch(`/admin/approvals/stores/${id}`, data),
@@ -25,8 +21,6 @@ export const adminService = {
     apiClient.patch(`/admin/subscriptions/${id}/end-date`, data),
 
   // Eliminacion masiva de rechazados
-  bulkDeleteRejectedSellers: (ids) =>
-    apiClient.post('/admin/approvals/sellers/bulk-delete', { ids }),
   bulkDeleteRejectedStores: (ids) =>
     apiClient.post('/admin/approvals/stores/bulk-delete', { ids }),
   bulkDeleteRejectedProducts: (ids) =>

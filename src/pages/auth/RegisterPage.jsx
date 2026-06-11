@@ -327,8 +327,9 @@ export default function RegisterPage() {
             <div className="bg-[#398269]/10 border border-[#398269]/20 rounded-xl p-4 mb-6 flex gap-3">
               <HiOutlineInformationCircle className="w-5 h-5 text-[#398269] flex-shrink-0 mt-0.5" />
               <p className="text-sm text-[#398269] leading-relaxed">
-                Despues de verificar tu cuenta, podras registrar tu tienda desde el panel de vendedor.
-                Tu solicitud sera revisada por un administrador antes de ser aprobada.
+                Despues de verificar tu correo, tu cuenta queda activa al instante y podras registrar
+                tu tienda desde el panel de vendedor. Cada tienda y producto sera revisado por un
+                administrador antes de publicarse.
               </p>
             </div>
           )}

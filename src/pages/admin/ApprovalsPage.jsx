@@ -9,14 +9,13 @@ import toast from 'react-hot-toast';
 import { HiOutlineCheckCircle, HiOutlineCheck, HiOutlineX, HiOutlineClock, HiOutlineOfficeBuilding } from 'react-icons/hi';
 
 export default function ApprovalsPage() {
-  const [tab, setTab] = useState('sellers');
+  const [tab, setTab] = useState('stores');
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showReject, setShowReject] = useState(null);
   const [rejectReason, setRejectReason] = useState('');
 
   const tabs = [
-    { key: 'sellers', label: 'Vendedores' },
     { key: 'stores', label: 'Tiendas' },
     { key: 'products', label: 'Productos' },
     { key: 'subscriptions', label: 'Suscripciones' },
@@ -30,8 +29,7 @@ export default function ApprovalsPage() {
     setLoading(true);
     try {
       let res;
-      if (tab === 'sellers') res = await adminService.getPendingSellers();
-      else if (tab === 'stores') res = await adminService.getPendingStores();
+      if (tab === 'stores') res = await adminService.getPendingStores();
       else if (tab === 'products') res = await adminService.getPendingProducts();
       else res = await adminService.getPendingSubscriptions();
       setData(res.data);
@@ -43,8 +41,7 @@ export default function ApprovalsPage() {
   const handleApprove = async (id) => {
     try {
       const payload = { estado: 'APROBADO' };
-      if (tab === 'sellers') await adminService.approveSeller(id, payload);
-      else if (tab === 'stores') await adminService.approveStore(id, payload);
+      if (tab === 'stores') await adminService.approveStore(id, payload);
       else if (tab === 'products') await adminService.approveProduct(id, payload);
       else await adminService.approveSubscription(id, payload);
       toast.success('Aprobado correctamente');
@@ -58,8 +55,7 @@ export default function ApprovalsPage() {
     if (!showReject) return;
     try {
       const payload = { estado: 'RECHAZADO', motivo_rechazo: rejectReason };
-      if (tab === 'sellers') await adminService.approveSeller(showReject, payload);
-      else if (tab === 'stores') await adminService.approveStore(showReject, payload);
+      if (tab === 'stores') await adminService.approveStore(showReject, payload);
       else if (tab === 'products') await adminService.approveProduct(showReject, payload);
       else await adminService.approveSubscription(showReject, payload);
       toast.success('Rechazado');
@@ -74,10 +70,7 @@ export default function ApprovalsPage() {
   const renderItem = (item) => {
     let title = '';
     let detail = '';
-    if (tab === 'sellers') {
-      title = item.razon_social || `${item.usuario?.nombre} ${item.usuario?.apellidos || ''}`;
-      detail = `RUC: ${item.ruc || '-'} | ${item.usuario?.correo}`;
-    } else if (tab === 'stores') {
+    if (tab === 'stores') {
       title = item.nombre;
       detail = `Galeria: ${item.galeria?.nombre || '-'} | Vendedor: ${item.vendedor?.usuario?.nombre || '-'}`;
     } else if (tab === 'products') {
