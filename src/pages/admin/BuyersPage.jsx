@@ -4,6 +4,7 @@ import { formatDateTime } from '../../utils/formatters';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import EmptyState from '../../components/ui/EmptyState';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
+import ExportButton from '../../components/ui/ExportButton';
 import toast from 'react-hot-toast';
 import {
   HiOutlineUsers,
@@ -71,6 +72,11 @@ export default function BuyersPage() {
 
   return (
     <div className="animate-fade-in pt-2">
+
+      {/* Exportar */}
+      <div className="mb-4">
+        <ExportButton exportFn={adminService.exportBuyers} baseName="compradores" />
+      </div>
 
       {/* Search */}
       <div className="bg-surface rounded-2xl shadow-card border border-gray-100/80 p-3 mb-4">

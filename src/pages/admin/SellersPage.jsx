@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { adminService } from '../../services/adminService';
-import { Capacitor } from '@capacitor/core';
 import { formatDateTime } from '../../utils/formatters';
+import { downloadExport } from '../../utils/exportDownload';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import EmptyState from '../../components/ui/EmptyState';
 import Modal from '../../components/ui/Modal';
@@ -98,35 +98,7 @@ export default function SellersPage() {
     setExporting(true);
     try {
       const response = await adminService.exportSellersExcel();
-      const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-
-      if (Capacitor.isNativePlatform()) {
-        // On native Android, use Filesystem to save the file
-        const { Filesystem, Directory } = await import('@capacitor/filesystem');
-        const reader = new FileReader();
-        reader.onload = async () => {
-          const base64 = reader.result.split(',')[1];
-          const fileName = `vendedores_${Date.now()}.xlsx`;
-          await Filesystem.writeFile({
-            path: fileName,
-            data: base64,
-            directory: Directory.Documents,
-          });
-          toast.success(`Archivo guardado en Documentos: ${fileName}`);
-        };
-        reader.readAsDataURL(blob);
-      } else {
-        // On web, use standard download link
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'vendedores.xlsx');
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-        toast.success('Excel descargado');
-      }
+      await downloadExport(response.data, 'vendedores', 'xlsx');
     } catch {
       toast.error('Error al exportar');
     } finally {

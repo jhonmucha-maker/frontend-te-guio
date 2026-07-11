@@ -110,8 +110,20 @@ export const adminService = {
   // Seller cascade delete
   cascadeDeleteSeller: (id) => apiClient.delete(`/admin/users/sellers/${id}/cascade`),
 
-  // Export
+  // Export (Excel / PDF). El parametro format es 'xlsx' | 'pdf'.
   exportSellersExcel: () => apiClient.get('/admin/export/sellers', { responseType: 'blob' }),
+  exportBuyers: (format) =>
+    apiClient.get('/admin/export/buyers', { params: { format }, responseType: 'blob' }),
+  exportProducts: (format) =>
+    apiClient.get('/admin/export/products', { params: { format }, responseType: 'blob' }),
+  exportStores: (format) =>
+    apiClient.get('/admin/export/stores', { params: { format }, responseType: 'blob' }),
+  exportGalleries: (format) =>
+    apiClient.get('/admin/export/galleries', { params: { format }, responseType: 'blob' }),
+  exportZones: (format) =>
+    apiClient.get('/admin/export/zones', { params: { format }, responseType: 'blob' }),
+  exportCategories: (format) =>
+    apiClient.get('/admin/export/categories', { params: { format }, responseType: 'blob' }),
 
   // Gallery photos
   addGalleryPhotos: (id, formData) =>

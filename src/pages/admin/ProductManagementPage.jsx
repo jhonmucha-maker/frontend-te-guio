@@ -4,6 +4,7 @@ import { useSSEListener } from '../../hooks/useSSEListener';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import EmptyState from '../../components/ui/EmptyState';
 import Modal from '../../components/ui/Modal';
+import ExportButton from '../../components/ui/ExportButton';
 import toast from 'react-hot-toast';
 import {
   HiOutlineCube, HiOutlineCheck, HiOutlineBan, HiOutlineSearch,
@@ -59,6 +60,11 @@ export default function ProductManagementPage() {
 
   return (
     <div className="animate-fade-in pt-2">
+
+      {/* Exportar */}
+      <div className="mb-4">
+        <ExportButton exportFn={adminService.exportProducts} baseName="productos" />
+      </div>
 
       {/* Stats compactos */}
       <div className="grid grid-cols-3 gap-3 mb-4">

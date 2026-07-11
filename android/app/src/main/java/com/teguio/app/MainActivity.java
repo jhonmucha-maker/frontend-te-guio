@@ -59,6 +59,46 @@ public class MainActivity extends BridgeActivity {
     }
 
     /**
+     * Fix pantalla en blanco al reentrar desde una notificacion push.
+     *
+     * El plugin @capacitor/keyboard con resizeOnFullScreen=true fija una altura
+     * absoluta en px al contenedor del WebView (content.getChildAt(0)) cuando el
+     * teclado aparece, y solo la restaura a MATCH_PARENT durante la animacion de
+     * OCULTADO del teclado. Al reentrar por push (singleTask -> onNewIntent/onResume,
+     * sin onCreate ni ciclo de teclado) esa altura reducida queda congelada y la
+     * mitad inferior de la pantalla se ve en blanco.
+     *
+     * Aqui restauramos MATCH_PARENT en cada vuelta a foreground, salvo que el teclado
+     * este realmente visible (para no interferir con la evitacion de teclado activa).
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        View contentView = findViewById(android.R.id.content);
+        if (contentView != null) {
+            contentView.post(() -> restoreWebViewHeightIfKeyboardHidden(contentView));
+        }
+    }
+
+    private void restoreWebViewHeightIfKeyboardHidden(View contentView) {
+        if (!(contentView instanceof ViewGroup)) return;
+        ViewGroup content = (ViewGroup) contentView;
+        if (content.getChildCount() == 0) return;
+
+        WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(content);
+        boolean keyboardVisible = insets != null && insets.isVisible(WindowInsetsCompat.Type.ime());
+        if (keyboardVisible) return;
+
+        View child = content.getChildAt(0);
+        ViewGroup.LayoutParams lp = child.getLayoutParams();
+        if (lp != null && lp.height != ViewGroup.LayoutParams.MATCH_PARENT) {
+            lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
+            child.setLayoutParams(lp);
+            child.requestLayout();
+        }
+    }
+
+    /**
      * Apply system bar insets via padding on the content FrameLayout + LayerDrawable background.
      */
     static void applySystemBarInsets(View contentView, int statusBarColor, int navBarColor) {

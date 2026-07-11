@@ -4,6 +4,7 @@ import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import { openExternal } from '../../utils/navigation';
 import EmptyState from '../../components/ui/EmptyState';
 import Modal from '../../components/ui/Modal';
+import ExportButton from '../../components/ui/ExportButton';
 import toast from 'react-hot-toast';
 import {
   HiOutlineOfficeBuilding, HiOutlineCheck, HiOutlineBan, HiOutlineSearch,
@@ -64,6 +65,11 @@ export default function StoreManagementPage() {
 
   return (
     <div className="animate-fade-in pt-2">
+
+      {/* Exportar */}
+      <div className="mb-4">
+        <ExportButton exportFn={adminService.exportStores} baseName="tiendas" />
+      </div>
 
       {/* Stats */}
       <div className="flex gap-3 mb-6 overflow-x-auto pb-1 justify-between">

@@ -4,8 +4,9 @@ import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import EmptyState from '../../components/ui/EmptyState';
 import Modal from '../../components/ui/Modal';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
+import ExportButton from '../../components/ui/ExportButton';
 import toast from 'react-hot-toast';
-import { HiOutlineCog, HiOutlinePlus, HiOutlinePencil, HiOutlineTrash, HiOutlineDocumentText, HiOutlineShieldCheck, HiOutlineSave, HiOutlineMail, HiOutlineOfficeBuilding, HiOutlineUser, HiOutlineLocationMarker, HiOutlineChevronDown, HiOutlineChevronUp, HiOutlineCreditCard, HiOutlineQuestionMarkCircle, HiOutlineTag, HiOutlineEye, HiOutlineEyeOff, HiOutlineLockClosed, HiOutlinePencilAlt } from 'react-icons/hi';
+import { HiOutlineCog, HiOutlineSearch, HiOutlinePlus, HiOutlinePencil, HiOutlineTrash, HiOutlineDocumentText, HiOutlineShieldCheck, HiOutlineSave, HiOutlineMail, HiOutlineOfficeBuilding, HiOutlineUser, HiOutlineLocationMarker, HiOutlineChevronDown, HiOutlineChevronUp, HiOutlineCreditCard, HiOutlineQuestionMarkCircle, HiOutlineTag, HiOutlineEye, HiOutlineEyeOff, HiOutlineLockClosed, HiOutlinePencilAlt } from 'react-icons/hi';
 import { formatDateTime } from '../../utils/formatters';
 
 const GalleryForm = lazy(() => import('../../components/admin/GalleryForm'));
@@ -17,11 +18,11 @@ const sections = [
     { name: 'nombre', label: 'Nombre', required: true },
     { name: 'id_ciudad', label: 'Ciudad', type: 'number', required: true, select: 'cities' },
   ]},
-  { key: 'categories', label: 'Categorias', fields: [
+  { key: 'categories', label: 'Categorias', searchable: true, fields: [
     { name: 'nombre', label: 'Nombre', required: true },
     { name: 'descripcion', label: 'Descripcion' },
   ]},
-  { key: 'galleries', label: 'Galerias', fields: [
+  { key: 'galleries', label: 'Galerias', searchable: true, fields: [
     { name: 'nombre', label: 'Nombre', required: true },
     { name: 'direccion', label: 'Direccion' },
     { name: 'id_zona', label: 'Zona', type: 'number', required: true, select: 'zones' },
@@ -62,6 +63,13 @@ const sections = [
     { name: 'descripcion', label: 'Descripcion', readOnly: true },
   ]},
 ];
+
+// Secciones de configuracion que ofrecen exportacion Excel / PDF.
+const exportMap = {
+  galleries: { fn: (format) => adminService.exportGalleries(format), baseName: 'galerias' },
+  zones: { fn: (format) => adminService.exportZones(format), baseName: 'zonas' },
+  categories: { fn: (format) => adminService.exportCategories(format), baseName: 'categorias' },
+};
 
 const serviceMap = {
   cities: { get: adminService.getCities, create: adminService.createCity, update: adminService.updateCity, del: adminService.deleteCity },
@@ -115,9 +123,21 @@ export default function ConfigPage() {
   const [form, setForm] = useState({});
   const [saving, setSaving] = useState(false);
   const [selectOptions, setSelectOptions] = useState({});
+  const [search, setSearch] = useState('');
 
   const section = sections.find((s) => s.key === activeSection);
   const svc = serviceMap[activeSection];
+
+  // Para secciones con buscador (galerias, categorias): filtra por nombre y
+  // ordena alfabeticamente. El resto de secciones se muestran sin alterar.
+  const displayItems = section?.searchable
+    ? [...items]
+        .filter((i) => {
+          const q = search.trim().toLowerCase();
+          return !q || (i.nombre || '').toLowerCase().includes(q);
+        })
+        .sort((a, b) => (a.nombre || '').localeCompare(b.nombre || '', 'es', { sensitivity: 'base' }))
+    : items;
 
   useEffect(() => {
     if (activeSection) loadItems();
@@ -218,7 +238,7 @@ export default function ConfigPage() {
         return (
           <div key={s.key} className="card !p-0 overflow-hidden">
             <button
-              onClick={() => setActiveSection(isExpanded ? null : s.key)}
+              onClick={() => { setActiveSection(isExpanded ? null : s.key); setSearch(''); }}
               className={`w-full flex items-center gap-3 px-5 py-4 text-left transition-all duration-200 ${
                 isExpanded
                   ? 'gradient-primary text-white rounded-t-2xl'
@@ -242,6 +262,14 @@ export default function ConfigPage() {
                   <TermsPrivacyEditor />
                 ) : (
                   <>
+                    {exportMap[s.key] && (
+                      <div className="mb-4">
+                        <ExportButton
+                          exportFn={exportMap[s.key].fn}
+                          baseName={exportMap[s.key].baseName}
+                        />
+                      </div>
+                    )}
                     {!section.noCreate && (
                       <button
                         onClick={openCreate}
@@ -252,13 +280,26 @@ export default function ConfigPage() {
                       </button>
                     )}
 
+                    {s.searchable && (
+                      <div className="relative mb-3">
+                        <HiOutlineSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                          type="text"
+                          value={search}
+                          onChange={(e) => setSearch(e.target.value)}
+                          placeholder="Buscar por nombre..."
+                          className="input-field pl-9 text-sm"
+                        />
+                      </div>
+                    )}
+
                     {loading ? (
                       <LoadingSpinner />
-                    ) : items.length === 0 ? (
+                    ) : displayItems.length === 0 ? (
                       <EmptyState icon={HiOutlineCog} title="Sin registros" />
                     ) : (
                       <div className="space-y-1.5">
-                        {items.map((item) => (
+                        {displayItems.map((item) => (
                           <div key={item.id} className="card !p-2.5">
                             <div className="flex items-center justify-between">
                               <div className="flex-1 min-w-0">
