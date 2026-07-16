@@ -56,6 +56,58 @@ export const APPROVAL_STATUS_LABELS = {
   RECHAZADO: 'Rechazado',
 };
 
+// Estado de cuenta derivado por el backend (deben coincidir con
+// backend/config/constants.js ACCOUNT_STATUS). Llega ya calculado en
+// `estado_cuenta`: no se recalcula aqui a partir de activo/correo_verificado.
+export const ACCOUNT_STATUS = {
+  ACTIVO: 'ACTIVO',
+  INACTIVO: 'INACTIVO',
+  SUSPENDIDO: 'SUSPENDIDO',
+};
+
+export const ACCOUNT_STATUS_LABELS = {
+  [ACCOUNT_STATUS.ACTIVO]: 'Activo',
+  [ACCOUNT_STATUS.INACTIVO]: 'Inactivo',
+  [ACCOUNT_STATUS.SUSPENDIDO]: 'Suspendido',
+};
+
+// Clases del badge de cada estado.
+export const ACCOUNT_STATUS_BADGE_CLASS = {
+  [ACCOUNT_STATUS.ACTIVO]: 'bg-seller-50 text-seller-600',
+  [ACCOUNT_STATUS.INACTIVO]: 'bg-amber-50 text-amber-600',
+  [ACCOUNT_STATUS.SUSPENDIDO]: 'bg-gray-100 text-gray-500',
+};
+
+// Chips y tarjetas de conteo por estado. `countKey` referencia los contadores
+// de getBuyers/getSellers (backend/config/constants.js ACCOUNT_STATUS_COUNT_KEYS).
+// `iconBg` pinta el circulo del icono; `accent`, el icono y el numero.
+export const ACCOUNT_STATUS_FILTERS = [
+  {
+    key: 'active',
+    label: 'Activos',
+    status: ACCOUNT_STATUS.ACTIVO,
+    countKey: 'activos',
+    iconBg: 'bg-seller-100',
+    accent: 'text-seller-500',
+  },
+  {
+    key: 'unverified',
+    label: 'Sin verificar',
+    status: ACCOUNT_STATUS.INACTIVO,
+    countKey: 'sin_verificar',
+    iconBg: 'bg-amber-100',
+    accent: 'text-amber-500',
+  },
+  {
+    key: 'suspended',
+    label: 'Suspendidos',
+    status: ACCOUNT_STATUS.SUSPENDIDO,
+    countKey: 'suspendidos',
+    iconBg: 'bg-red-100',
+    accent: 'text-red-500',
+  },
+];
+
 export const ROLE_ROUTES = {
   COMPRADOR: '/comprador/dashboard',
   VENDEDOR: '/vendedor/dashboard',

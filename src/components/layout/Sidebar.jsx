@@ -15,6 +15,7 @@ import {
   HiOutlineCurrencyDollar,
   HiOutlineCog,
   HiOutlineDocumentReport,
+  HiOutlineDownload,
   HiOutlineUser,
   HiOutlineClock,
   HiOutlineQuestionMarkCircle,
@@ -95,6 +96,7 @@ const getAdminLinks = (usuario) => {
       { to: '/admin/suscripciones', label: 'Suscripciones', icon: HiOutlineCreditCard, badgeKey: 'pendingSubscriptions' },
       { to: '/admin/finanzas', label: 'Finanzas', icon: HiOutlineCurrencyDollar },
       { to: '/admin/reportes', label: 'Reportes y Análisis', icon: HiOutlineDocumentReport },
+      { to: '/admin/exportaciones', label: 'Exportaciones', icon: HiOutlineDownload },
     ]},
     { section: 'SISTEMA', items: sistemaItems },
   ];

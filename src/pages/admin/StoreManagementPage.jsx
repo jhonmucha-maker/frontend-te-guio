@@ -178,6 +178,7 @@ export default function StoreManagementPage() {
               <p className="text-sm"><span className="font-semibold text-gray-700">Nombre:</span> {selectedStore.nombre}</p>
               <p className="text-sm"><span className="font-semibold text-gray-700">Descripción:</span> {selectedStore.descripcion || '-'}</p>
               <p className="text-sm"><span className="font-semibold text-gray-700">Puesto:</span> {selectedStore.numero_local || selectedStore.direccion || '-'}</p>
+              <p className="text-sm"><span className="font-semibold text-gray-700">Observación:</span> {selectedStore.observacion || '-'}</p>
               <p className="text-sm"><span className="font-semibold text-gray-700">Productos:</span> {selectedStore.productos_count} productos</p>
             </div>
 

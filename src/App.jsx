@@ -60,6 +60,7 @@ import ComplaintsManagementPage from './pages/admin/ComplaintsManagementPage';
 import FinancePage from './pages/admin/FinancePage';
 import ConfigPage from './pages/admin/ConfigPage';
 import ReportsPage from './pages/admin/ReportsPage';
+import ExportsPage from './pages/admin/ExportsPage';
 import AdminsManagementPage from './pages/admin/AdminsManagementPage';
 import PushNotificationsPage from './pages/admin/PushNotificationsPage';
 
@@ -195,6 +196,7 @@ function App() {
         <Route path="suscripciones" element={<AdminSubscriptionsPage />} />
         <Route path="finanzas" element={<FinancePage />} />
         <Route path="reportes" element={<ReportsPage />} />
+        <Route path="exportaciones" element={<ExportsPage />} />
         <Route path="quejas" element={<ComplaintsManagementPage />} />
         <Route path="administradores" element={<AdminsManagementPage />} />
         <Route path="notificaciones-push" element={<PushNotificationsPage />} />

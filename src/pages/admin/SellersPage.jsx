@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react';
 import { adminService } from '../../services/adminService';
 import { formatDateTime } from '../../utils/formatters';
-import { downloadExport } from '../../utils/exportDownload';
+import ExportButton from '../../components/ui/ExportButton';
+import {
+  ACCOUNT_STATUS_BADGE_CLASS,
+  ACCOUNT_STATUS_FILTERS,
+  ACCOUNT_STATUS_LABELS,
+} from '../../utils/constants';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import EmptyState from '../../components/ui/EmptyState';
 import Modal from '../../components/ui/Modal';
@@ -12,7 +17,6 @@ import {
   HiOutlineSearch,
   HiOutlineFilter,
   HiOutlineOfficeBuilding,
-  HiOutlineDownload,
   HiOutlineStar,
   HiOutlinePhone,
   HiOutlineChevronDown,
@@ -20,14 +24,36 @@ import {
   HiOutlineX,
 } from 'react-icons/hi';
 
+// Identificadores numericos: se comparan solo por digitos para tolerar
+// espacios, guiones o prefijos ("+51 999 888 777" encuentra "999888").
+const onlyDigits = (v) => String(v ?? '').replace(/\D/g, '');
+
+// Busca en nombre, correo, negocio, tiendas/galerias y en los identificadores
+// (telefono, DNI, RUC) que el backend ya envia en datos_facturacion.
+const matchesSearch = (u, rawQuery) => {
+  const query = (rawQuery || '').trim().toLowerCase();
+  if (!query) return true;
+
+  const fact = u.datos_facturacion || {};
+  const textFields = [
+    u.nombre, u.correo, fact.nombre_negocio, fact.razon_social,
+    ...(u.tiendas || []).flatMap((t) => [t.nombre, t.galeria]),
+  ];
+  if (textFields.some((f) => (f || '').toLowerCase().includes(query))) return true;
+
+  const queryDigits = onlyDigits(query);
+  if (!queryDigits) return false;
+  return [u.telefono, fact.dni, fact.ruc].some((f) => onlyDigits(f).includes(queryDigits));
+};
+
 export default function SellersPage() {
   const [users, setUsers] = useState([]);
+  const [counts, setCounts] = useState({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
   const [selectedSeller, setSelectedSeller] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [exporting, setExporting] = useState(false);
 
   // Filtros avanzados
   const [showFilters, setShowFilters] = useState(false);
@@ -48,6 +74,7 @@ export default function SellersPage() {
     try {
       const res = await adminService.getSellers();
       setUsers(res.data.vendedores || []);
+      setCounts(res.data || {});
     } catch {
       toast.error('Error al cargar vendedores');
     } finally {
@@ -94,18 +121,6 @@ export default function SellersPage() {
     }
   };
 
-  const handleExport = async () => {
-    setExporting(true);
-    try {
-      const response = await adminService.exportSellersExcel();
-      await downloadExport(response.data, 'vendedores', 'xlsx');
-    } catch {
-      toast.error('Error al exportar');
-    } finally {
-      setExporting(false);
-    }
-  };
-
   const activeFiltersCount = [filterCity, filterZone, filterGallery].filter(Boolean).length;
 
   const clearFilters = () => {
@@ -115,12 +130,11 @@ export default function SellersPage() {
   };
 
   const filtered = users.filter((u) => {
-    const searchLower = search.toLowerCase();
-    const matchSearch = !search ||
-      (u.nombre || '').toLowerCase().includes(searchLower) ||
-      (u.correo || '').toLowerCase().includes(searchLower) ||
-      (u.tiendas || []).some(t => (t.nombre || '').toLowerCase().includes(searchLower));
+    const matchSearch = matchesSearch(u, search);
     const tiendas = u.tiendas || [];
+    // Los chips de estado filtran por el estado_cuenta que deriva el backend.
+    const statusFilter = ACCOUNT_STATUS_FILTERS.find((f) => f.key === filter);
+    if (statusFilter && u.estado_cuenta !== statusFilter.status) return false;
     const matchFilter = filter === 'all' ||
       (filter === 'premium' ? tiendas.some(t => t.tipo_plan === 'PREMIUM') : filter === 'standard' ? tiendas.some(t => t.tipo_plan === 'ESTANDAR') : true);
 
@@ -149,14 +163,9 @@ export default function SellersPage() {
           Filtros {activeFiltersCount > 0 && `(${activeFiltersCount})`}
           {showFilters ? <HiOutlineChevronUp className="w-3.5 h-3.5" /> : <HiOutlineChevronDown className="w-3.5 h-3.5" />}
         </button>
-        <button
-          onClick={handleExport}
-          disabled={exporting}
-          className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary-600 text-white text-sm font-semibold hover:bg-primary-700 transition-colors shadow-sm disabled:opacity-50"
-        >
-          <HiOutlineDownload className="w-4 h-4" />
-          {exporting ? 'Exportando...' : 'Exportar'}
-        </button>
+        <div className="flex-1">
+          <ExportButton exportFn={adminService.exportSellers} baseName="vendedores" />
+        </div>
       </div>
 
       {/* Panel de filtros desplegable */}
@@ -228,7 +237,7 @@ export default function SellersPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por tienda, email o galería"
+            placeholder="Buscar por nombre, email, teléfono, DNI, RUC, tienda o galería"
             className="input-field pl-10 text-sm"
           />
         </div>
@@ -238,6 +247,10 @@ export default function SellersPage() {
       <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
         {[
           { key: 'all', label: `Todos (${users.length})` },
+          ...ACCOUNT_STATUS_FILTERS.map((f) => ({
+            key: f.key,
+            label: `${f.label} (${counts[f.countKey] ?? 0})`,
+          })),
           { key: 'premium', label: `Premium (${premiumCount})` },
           { key: 'standard', label: `Estándar (${standardCount})` },
         ].map((f) => (
@@ -273,7 +286,12 @@ export default function SellersPage() {
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-bold text-gray-900 truncate">{u.nombre}</h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-gray-900 truncate">{u.nombre}</h3>
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${ACCOUNT_STATUS_BADGE_CLASS[u.estado_cuenta]}`}>
+                      {ACCOUNT_STATUS_LABELS[u.estado_cuenta]}
+                    </span>
+                  </div>
                   <p className="text-xs text-gray-500 truncate">{u.correo}</p>
                 </div>
 
@@ -378,6 +396,13 @@ export default function SellersPage() {
                 </div>
               </div>
             )}
+
+            <div className="flex items-center justify-between bg-gray-50 rounded-xl p-3">
+              <span className="text-sm font-medium text-gray-700">Estado</span>
+              <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${ACCOUNT_STATUS_BADGE_CLASS[selectedSeller.estado_cuenta]}`}>
+                {ACCOUNT_STATUS_LABELS[selectedSeller.estado_cuenta]}
+              </span>
+            </div>
 
             <div className="flex items-center justify-between bg-gray-50 rounded-xl p-3">
               <span className="text-sm font-medium text-gray-700">Vendedor Activo</span>

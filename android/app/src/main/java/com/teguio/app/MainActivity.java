@@ -72,7 +72,7 @@ public class MainActivity extends BridgeActivity {
      * este realmente visible (para no interferir con la evitacion de teclado activa).
      */
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         View contentView = findViewById(android.R.id.content);
         if (contentView != null) {

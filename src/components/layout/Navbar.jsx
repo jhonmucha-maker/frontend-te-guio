@@ -52,6 +52,7 @@ const ADMIN_PAGE_TITLES = {
   '/admin/suscripciones': 'Suscripciones',
   '/admin/finanzas': 'Finanzas',
   '/admin/reportes': 'Reportes y Analisis',
+  '/admin/exportaciones': 'Exportaciones',
   '/admin/quejas': 'Quejas y Sugerencias',
   '/admin/administradores': 'Administradores',
   '/admin/configuracion': 'Configuracion',

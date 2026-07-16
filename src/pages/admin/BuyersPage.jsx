@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import { adminService } from '../../services/adminService';
 import { formatDateTime } from '../../utils/formatters';
+import {
+  ACCOUNT_STATUS_BADGE_CLASS,
+  ACCOUNT_STATUS_FILTERS,
+  ACCOUNT_STATUS_LABELS,
+} from '../../utils/constants';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import EmptyState from '../../components/ui/EmptyState';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
@@ -12,10 +17,19 @@ import {
   HiOutlineBan,
   HiOutlineSearch,
   HiOutlineTrash,
+  HiOutlineMail,
 } from 'react-icons/hi';
+
+// Icono de cada tarjeta de conteo por estado.
+const STATUS_ICONS = {
+  active: HiOutlineCheck,
+  unverified: HiOutlineMail,
+  suspended: HiOutlineBan,
+};
 
 export default function BuyersPage() {
   const [users, setUsers] = useState([]);
+  const [counts, setCounts] = useState({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
@@ -30,6 +44,7 @@ export default function BuyersPage() {
     try {
       const res = await adminService.getBuyers();
       setUsers(res.data.compradores || []);
+      setCounts(res.data || {});
     } catch {
       toast.error('Error al cargar compradores');
     } finally {
@@ -63,12 +78,10 @@ export default function BuyersPage() {
     const matchSearch = !search ||
       (u.nombre || '').toLowerCase().includes(search.toLowerCase()) ||
       (u.correo || '').toLowerCase().includes(search.toLowerCase());
-    const matchFilter = filter === 'all' || (filter === 'active' ? u.activo : !u.activo);
+    const selected = ACCOUNT_STATUS_FILTERS.find((f) => f.key === filter);
+    const matchFilter = !selected || u.estado_cuenta === selected.status;
     return matchSearch && matchFilter;
   });
-
-  const activeCount = users.filter(u => u.activo).length;
-  const inactiveCount = users.filter(u => !u.activo).length;
 
   return (
     <div className="animate-fade-in pt-2">
@@ -93,7 +106,7 @@ export default function BuyersPage() {
       </div>
 
       {/* Stats compactos */}
-      <div className="grid grid-cols-3 gap-3 mb-4">
+      <div className="grid grid-cols-4 gap-2 mb-4">
         <div className="bg-surface rounded-xl shadow-sm border border-gray-100/80 p-3 text-center">
           <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center mx-auto mb-1">
             <HiOutlineUsers className="w-4 h-4 text-primary-600" />
@@ -101,28 +114,28 @@ export default function BuyersPage() {
           <p className="text-lg font-bold font-display text-primary-600">{users.length}</p>
           <p className="text-[10px] text-gray-500">Total</p>
         </div>
-        <div className="bg-surface rounded-xl shadow-sm border border-gray-100/80 p-3 text-center">
-          <div className="w-8 h-8 rounded-full bg-seller-100 flex items-center justify-center mx-auto mb-1">
-            <HiOutlineCheck className="w-4 h-4 text-seller-500" />
-          </div>
-          <p className="text-lg font-bold font-display text-seller-500">{activeCount}</p>
-          <p className="text-[10px] text-gray-500">Activos</p>
-        </div>
-        <div className="bg-surface rounded-xl shadow-sm border border-gray-100/80 p-3 text-center">
-          <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-1">
-            <HiOutlineBan className="w-4 h-4 text-red-500" />
-          </div>
-          <p className="text-lg font-bold font-display text-red-500">{inactiveCount}</p>
-          <p className="text-[10px] text-gray-500">Inactivos</p>
-        </div>
+        {ACCOUNT_STATUS_FILTERS.map((f) => {
+          const Icon = STATUS_ICONS[f.key];
+          return (
+            <div key={f.key} className="bg-surface rounded-xl shadow-sm border border-gray-100/80 p-3 text-center">
+              <div className={`w-8 h-8 rounded-full ${f.iconBg} flex items-center justify-center mx-auto mb-1`}>
+                <Icon className={`w-4 h-4 ${f.accent}`} />
+              </div>
+              <p className={`text-lg font-bold font-display ${f.accent}`}>{counts[f.countKey] ?? 0}</p>
+              <p className="text-[10px] text-gray-500">{f.label}</p>
+            </div>
+          );
+        })}
       </div>
 
       {/* Filter Chips */}
       <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
         {[
           { key: 'all', label: `Todos (${users.length})` },
-          { key: 'active', label: `Activos (${activeCount})` },
-          { key: 'inactive', label: `Inactivos (${inactiveCount})` },
+          ...ACCOUNT_STATUS_FILTERS.map((f) => ({
+            key: f.key,
+            label: `${f.label} (${counts[f.countKey] ?? 0})`,
+          })),
         ].map((f) => (
           <button
             key={f.key}
@@ -154,8 +167,8 @@ export default function BuyersPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <h3 className="text-sm font-bold text-gray-900 truncate">{u.nombre}</h3>
-                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${u.activo ? 'bg-seller-50 text-seller-600' : 'bg-red-50 text-red-600'}`}>
-                      {u.activo ? 'Activo' : 'Inactivo'}
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 ${ACCOUNT_STATUS_BADGE_CLASS[u.estado_cuenta]}`}>
+                      {ACCOUNT_STATUS_LABELS[u.estado_cuenta]}
                     </span>
                   </div>
                   <p className="text-xs text-gray-500 truncate">{u.correo}</p>

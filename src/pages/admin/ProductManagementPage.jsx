@@ -7,7 +7,7 @@ import Modal from '../../components/ui/Modal';
 import ExportButton from '../../components/ui/ExportButton';
 import toast from 'react-hot-toast';
 import {
-  HiOutlineCube, HiOutlineCheck, HiOutlineBan, HiOutlineSearch,
+  HiOutlineCube, HiOutlineCheck, HiOutlineBan, HiOutlineSearch, HiOutlineX,
 } from 'react-icons/hi';
 
 import { resolveFileUrl } from '../../utils/constants';
@@ -18,6 +18,7 @@ export default function ProductManagementPage() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [lightboxImg, setLightboxImg] = useState(null);
 
   useEffect(() => { loadProducts(); }, []);
 
@@ -155,7 +156,13 @@ export default function ProductManagementPage() {
                   <p className="text-xs text-gray-400 mb-2">Galeria ({selectedProduct.fotos.length} imagenes)</p>
                   <div className="flex gap-2 overflow-x-auto">
                     {selectedProduct.fotos.map((f, i) => (
-                      <img key={i} src={resolveFileUrl(f.url)} alt="" className="w-24 h-24 object-cover rounded-xl flex-shrink-0" />
+                      <img
+                        key={i}
+                        src={resolveFileUrl(f.url)}
+                        alt=""
+                        onClick={() => setLightboxImg(resolveFileUrl(f.url))}
+                        className="w-24 h-24 object-cover rounded-xl flex-shrink-0 cursor-pointer active:opacity-70 transition-opacity"
+                      />
                     ))}
                   </div>
                 </div>
@@ -194,6 +201,33 @@ export default function ProductManagementPage() {
           );
         })()}
       </Modal>
+
+      {/* Fullscreen Image Lightbox */}
+      {lightboxImg && (
+        <div
+          className="fixed inset-0 z-[60] bg-black flex flex-col"
+          onClick={() => setLightboxImg(null)}
+        >
+          <div className="flex items-center justify-end px-4 py-3 flex-shrink-0">
+            <button
+              onClick={() => setLightboxImg(null)}
+              className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+            >
+              <HiOutlineX className="w-6 h-6" />
+            </button>
+          </div>
+          <div
+            className="flex-1 flex items-center justify-center px-4 overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={lightboxImg}
+              alt="Producto"
+              className="max-w-full max-h-full object-contain"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
