@@ -4,6 +4,7 @@ import { sellerService } from '../../services/sellerService';
 import { useAuth } from '../../features/auth/useAuth';
 import { useTheme } from '../../hooks/useTheme';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import DeleteAccountModal from '../../components/ui/DeleteAccountModal';
 import toast from 'react-hot-toast';
 import {
   HiOutlineExclamation,
@@ -11,6 +12,7 @@ import {
   HiOutlineSave,
   HiOutlineLogout,
   HiOutlineSun,
+  HiOutlineTrash,
 } from 'react-icons/hi';
 
 export default function SellerProfilePage() {
@@ -18,6 +20,7 @@ export default function SellerProfilePage() {
   const { usuario, logout } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [profile, setProfile] = useState(null);
   const [form, setForm] = useState({
     nombre: '',
@@ -291,8 +294,18 @@ export default function SellerProfilePage() {
             <HiOutlineLogout className="w-4 h-4" />
             Cerrar Sesión
           </button>
+          <button
+            type="button"
+            onClick={() => setShowDeleteModal(true)}
+            className="w-full py-3 rounded-xl text-sm font-semibold text-red-500 hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
+          >
+            <HiOutlineTrash className="w-4 h-4" />
+            Eliminar cuenta
+          </button>
         </div>
       </form>
+
+      <DeleteAccountModal open={showDeleteModal} onClose={() => setShowDeleteModal(false)} isSeller />
     </div>
   );
 }

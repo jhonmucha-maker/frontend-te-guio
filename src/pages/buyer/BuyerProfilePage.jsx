@@ -3,6 +3,7 @@ import { buyerService } from '../../services/buyerService';
 import { catalogService } from '../../services/catalogService';
 import { useAuth } from '../../features/auth/useAuth';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import DeleteAccountModal from '../../components/ui/DeleteAccountModal';
 import { useTheme } from '../../hooks/useTheme';
 import toast from 'react-hot-toast';
 import {
@@ -17,6 +18,7 @@ import {
   HiOutlineEye,
   HiOutlineEyeOff,
   HiOutlineX,
+  HiOutlineTrash,
 } from 'react-icons/hi';
 
 export default function BuyerProfilePage() {
@@ -27,6 +29,7 @@ export default function BuyerProfilePage() {
   const { isDark, toggleTheme } = useTheme();
   const [editingCity, setEditingCity] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
@@ -326,7 +329,23 @@ export default function BuyerProfilePage() {
           </div>
           <HiOutlineChevronRight className="w-5 h-5 text-gray-300 flex-shrink-0" />
         </button>
+        <button
+          type="button"
+          onClick={() => setShowDeleteModal(true)}
+          className="w-full px-5 py-4 flex items-center gap-4 border-t border-gray-50 hover:bg-gray-50 transition-colors"
+        >
+          <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
+            <HiOutlineTrash className="w-5 h-5 text-red-500" />
+          </div>
+          <div className="flex-1 min-w-0 text-left">
+            <p className="text-sm text-red-600 font-medium">Eliminar cuenta</p>
+            <p className="text-xs text-gray-400 mt-0.5">Elimina tu cuenta de forma permanente</p>
+          </div>
+          <HiOutlineChevronRight className="w-5 h-5 text-gray-300 flex-shrink-0" />
+        </button>
       </div>
+
+      <DeleteAccountModal open={showDeleteModal} onClose={() => setShowDeleteModal(false)} />
 
       {/* Password Change Modal */}
       {showPasswordModal && (

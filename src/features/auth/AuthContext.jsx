@@ -48,12 +48,16 @@ export function AuthProvider({ children }) {
     return data;
   };
 
-  const logout = async () => {
-    try {
-      const pushToken = localStorage.getItem('pushToken');
-      await authService.logout(pushToken);
-    } catch {
-      // silently ignore
+  // skipServer: la sesion ya se cerro en el backend (cuenta eliminada); llamar a /logout
+  // devolveria ACCOUNT_DISABLED y mostraria el aviso de cuenta inhabilitada.
+  const logout = async ({ skipServer = false } = {}) => {
+    if (!skipServer) {
+      try {
+        const pushToken = localStorage.getItem('pushToken');
+        await authService.logout(pushToken);
+      } catch {
+        // silently ignore
+      }
     }
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');

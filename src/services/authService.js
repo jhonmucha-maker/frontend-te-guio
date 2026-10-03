@@ -32,6 +32,9 @@ export const authService = {
   logout: (deviceToken = null) =>
     apiClient.post('/auth/logout', deviceToken ? { device_token: deviceToken } : {}),
 
+  deleteAccount: (contrasena) =>
+    apiClient.post('/auth/account/delete', { contrasena }),
+
   getMe: () =>
     apiClient.get('/auth/me'),
 
