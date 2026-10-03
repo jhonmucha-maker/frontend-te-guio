@@ -28,6 +28,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Te Guío usa la cámara para que puedas tomar fotos de tu tienda y de tus productos al publicarlos en el marketplace.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Te Guío usa tu ubicación para mostrarte las galerías comerciales y tiendas más cercanas a ti.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Te Guío usa tu ubicación para mostrarte las galerías comerciales y tiendas más cercanas a ti.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
