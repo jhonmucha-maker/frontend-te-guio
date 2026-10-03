@@ -13,7 +13,7 @@ import ForceUpdateModal from '../ui/ForceUpdateModal';
 // Guard global de actualizacion forzada del aplicativo Android.
 //
 // Comportamiento:
-//  - En web (no nativa): TRANSPARENTE, no interfiere ni consulta nada.
+//  - En web e iOS: TRANSPARENTE, no interfiere ni consulta nada.
 //  - En APK Android:
 //      1. Al montar, consulta /api/version contra el backend.
 //      2. Si el versionCode instalado es < min_version_code del backend Y
@@ -22,7 +22,7 @@ import ForceUpdateModal from '../ui/ForceUpdateModal';
 //         que el usuario ya actualizo desde Play Store.
 //
 // Garantias de no rotura (fail-open):
-//  - Si Capacitor no es nativo => no bloquea.
+//  - Si la plataforma no es Android => no bloquea.
 //  - Si @capacitor/app falla => no bloquea.
 //  - Si la red falla / timeout / 500 => no bloquea.
 //  - Si min_version_code <= 0 => no bloquea.
@@ -47,8 +47,9 @@ export default function VersionGuard({ children }) {
     checkingRef.current = true;
 
     try {
-      // En web admin u otros navegadores: pasar transparente.
-      if (!Capacitor.isNativePlatform()) {
+      // Solo aplica al APK Android: la configuracion de /api/version y el
+      // enlace de actualizacion son de Play Store. En web e iOS pasar transparente.
+      if (Capacitor.getPlatform() !== 'android') {
         setState({ blocked: false, title: '', message: '', playStoreUrl: '', ready: true });
         return;
       }
