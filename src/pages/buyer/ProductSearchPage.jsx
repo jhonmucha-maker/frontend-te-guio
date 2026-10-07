@@ -22,6 +22,17 @@ import {
 } from 'react-icons/hi';
 import { TbShoppingCartPlus } from 'react-icons/tb';
 
+// Traduce los filtros aplicados a los query params del endpoint de busqueda.
+// El backend devuelve paginas de tamano fijo (20).
+const buildSearchParams = (applied, page) => {
+  const params = { page };
+  if (applied.q) params.q = applied.q;
+  if (applied.id_categoria) params.category_id = applied.id_categoria;
+  if (applied.id_ciudad) params.city_id = applied.id_ciudad;
+  if (applied.id_zona) params.zone_id = applied.id_zona;
+  return params;
+};
+
 export default function ProductSearchPage() {
   const { usuario } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -30,6 +41,7 @@ export default function ProductSearchPage() {
 
   // --- Data state ---
   const [products, setProducts] = useState([]);
+  const [total, setTotal] = useState(0);
   const [categories, setCategories] = useState([]);
   const [cities, setCities] = useState([]);
   const [zones, setZones] = useState([]);
@@ -41,6 +53,19 @@ export default function ProductSearchPage() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [togglingFav, setTogglingFav] = useState(null);
   const [addingToCart, setAddingToCart] = useState(null);
+
+  // --- Infinite scroll state ---
+  const [page, setPage] = useState(0); // ultima pagina cargada
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [loadMoreError, setLoadMoreError] = useState(false);
+  // Filtros de la busqueda vigente: las paginas siguientes usan estos, no los
+  // que el usuario este editando en el formulario sin haber presionado Buscar.
+  const appliedFiltersRef = useRef(null);
+  // Cada busqueda nueva invalida las respuestas en vuelo de la anterior.
+  const requestIdRef = useRef(0);
+  const loadingMoreRef = useRef(false);
+  const sentinelRef = useRef(null);
 
   // --- Filter state (restore from URL if returning from detail page) ---
   const [filters, setFilters] = useState(() => ({
@@ -96,40 +121,95 @@ export default function ProductSearchPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters.id_ciudad]);
 
-  // --- Search products ---
+  // --- Search products (primera pagina) ---
   const handleSearch = useCallback(
     async (e) => {
       if (e) e.preventDefault();
+      const applied = { ...filters };
+      appliedFiltersRef.current = applied;
+      const requestId = ++requestIdRef.current;
+      loadingMoreRef.current = false;
       setLoading(true);
       setHasSearched(true);
+      setProducts([]);
+      setTotal(0);
+      setPage(0);
+      setHasMore(false);
+      setLoadingMore(false);
+      setLoadMoreError(false);
       // Collapse filters after searching on mobile
       setFiltersOpen(false);
       // Persist filters in URL for back-navigation
       const sp = new URLSearchParams();
       sp.set('searched', '1');
-      if (filters.q) sp.set('q', filters.q);
-      if (filters.id_categoria) sp.set('id_categoria', filters.id_categoria);
-      if (filters.id_ciudad) sp.set('id_ciudad', filters.id_ciudad);
-      if (filters.id_zona) sp.set('id_zona', filters.id_zona);
+      if (applied.q) sp.set('q', applied.q);
+      if (applied.id_categoria) sp.set('id_categoria', applied.id_categoria);
+      if (applied.id_ciudad) sp.set('id_ciudad', applied.id_ciudad);
+      if (applied.id_zona) sp.set('id_zona', applied.id_zona);
       setSearchParams(sp, { replace: true });
       try {
-        const params = { limit: 50 };
-        if (filters.q) params.q = filters.q;
-        if (filters.id_categoria) params.category_id = filters.id_categoria;
-        if (filters.id_ciudad) params.city_id = filters.id_ciudad;
-        if (filters.id_zona) params.zone_id = filters.id_zona;
-
-        const { data } = await marketplaceService.searchProducts(params);
-        setProducts(Array.isArray(data.data) ? data.data : []);
+        const { data } = await marketplaceService.searchProducts(buildSearchParams(applied, 1));
+        if (requestId !== requestIdRef.current) return;
+        const items = Array.isArray(data.data) ? data.data : [];
+        setProducts(items);
+        setPage(1);
+        setTotal(data.pagination?.total ?? items.length);
+        setHasMore(1 < (data.pagination?.pages ?? 0));
       } catch {
-        setProducts([]);
+        if (requestId !== requestIdRef.current) return;
         toast.error('Error al buscar productos');
       } finally {
-        setLoading(false);
+        if (requestId === requestIdRef.current) setLoading(false);
       }
     },
     [filters, setSearchParams],
   );
+
+  // --- Load next page (infinite scroll) ---
+  const loadMore = useCallback(async () => {
+    const applied = appliedFiltersRef.current;
+    if (!applied || loadingMoreRef.current || !hasMore || loadMoreError) return;
+    loadingMoreRef.current = true;
+    const requestId = requestIdRef.current;
+    const nextPage = page + 1;
+    setLoadingMore(true);
+    try {
+      const { data } = await marketplaceService.searchProducts(buildSearchParams(applied, nextPage));
+      if (requestId !== requestIdRef.current) return;
+      const items = Array.isArray(data.data) ? data.data : [];
+      setProducts((prev) => {
+        const seen = new Set(prev.map((p) => p.id));
+        return [...prev, ...items.filter((p) => !seen.has(p.id))];
+      });
+      setPage(nextPage);
+      if (data.pagination?.total != null) setTotal(data.pagination.total);
+      setHasMore(items.length > 0 && nextPage < (data.pagination?.pages ?? 0));
+    } catch {
+      if (requestId !== requestIdRef.current) return;
+      setLoadMoreError(true);
+    } finally {
+      if (requestId === requestIdRef.current) {
+        loadingMoreRef.current = false;
+        setLoadingMore(false);
+      }
+    }
+  }, [hasMore, loadMoreError, page]);
+
+  // Carga la siguiente pagina cuando el centinela al final de la lista se
+  // acerca al viewport. El observer se recrea tras cada carga para que, si el
+  // centinela sigue visible (pantalla alta), se dispare de nuevo.
+  useEffect(() => {
+    const node = sentinelRef.current;
+    if (!node || loading || loadingMore || !hasMore || loadMoreError) return undefined;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) loadMore();
+      },
+      { rootMargin: '0px 0px 400px 0px' },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [loading, loadingMore, hasMore, loadMoreError, loadMore]);
 
   // Auto-search on mount when returning from product detail
   useEffect(() => {
@@ -330,7 +410,7 @@ export default function ProductSearchPage() {
               Resultados:
             </span>
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary-50 text-primary-600 border border-primary-200">
-              {products.length} producto{products.length !== 1 ? 's' : ''}
+              {total} producto{total !== 1 ? 's' : ''}
             </span>
           </div>
 
@@ -422,6 +502,27 @@ export default function ProductSearchPage() {
               );
             })}
           </div>
+
+          {/* Infinite scroll: centinela + estado de la carga incremental */}
+          <div ref={sentinelRef} aria-hidden="true" />
+          {loadingMore && <LoadingSpinner size="sm" />}
+          {loadMoreError && (
+            <div className="flex flex-col items-center gap-2 py-6 text-center">
+              <p className="text-sm text-gray-500">No se pudieron cargar mas productos</p>
+              <button
+                type="button"
+                onClick={() => setLoadMoreError(false)}
+                className="btn-secondary text-sm"
+              >
+                Reintentar
+              </button>
+            </div>
+          )}
+          {!hasMore && page > 1 && (
+            <p className="text-center text-xs text-gray-400 py-6">
+              No hay mas productos
+            </p>
+          )}
         </>
       )}
     </div>
