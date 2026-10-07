@@ -151,7 +151,7 @@ export default function BuyerProfilePage() {
   return (
     <div className="animate-fade-in pb-6">
       {/* Full-bleed Hero Header */}
-      <div className="gradient-hero -mx-4 sm:-mx-6 -mt-4 px-6 pt-12 pb-14 mb-8 text-center relative overflow-hidden">
+      <div className="gradient-hero -mx-4 sm:-mx-6 -mt-4 sm:-mt-6 px-6 pt-12 pb-14 mb-8 text-center relative overflow-hidden">
         {/* Decorative circles */}
         <div className="absolute bottom-4 left-[10%] w-44 h-44 rounded-full bg-white/[0.08]" />
         <div className="absolute bottom-[-20%] left-[25%] w-56 h-56 rounded-full bg-white/[0.06]" />

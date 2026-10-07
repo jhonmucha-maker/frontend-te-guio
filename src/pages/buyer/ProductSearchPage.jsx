@@ -415,7 +415,7 @@ export default function ProductSearchPage() {
           </div>
 
           {/* Product list */}
-          <div className="space-y-3">
+          <div className="space-y-3 md:space-y-0 md:grid md:grid-cols-2 md:gap-3">
             {products.map((p) => {
               const isFav = favoriteIds.has(p.id);
               return (

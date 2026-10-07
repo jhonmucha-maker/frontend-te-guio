@@ -111,14 +111,14 @@ export default function CreateProductPage() {
       </div>
 
       {/* Info banner */}
-      <div className="bg-primary-50 border border-primary-100 rounded-2xl p-4 mb-6 flex items-start gap-3">
+      <div className="bg-primary-50 border border-primary-100 rounded-2xl p-4 mb-6 flex items-start gap-3 md:max-w-2xl md:mx-auto">
         <HiOutlineInformationCircle className="w-5 h-5 text-primary-600 mt-0.5 shrink-0" />
         <p className="text-sm text-primary-600">
           Tu producto será enviado para revisión. Una vez aprobado, estará visible para los compradores.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="md:max-w-2xl md:mx-auto">
         <div className="card rounded-2xl shadow-card mb-6">
           <h3 className="text-base font-display font-bold text-gray-900 mb-4">Nuevo Producto</h3>
 

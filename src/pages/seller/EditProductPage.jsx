@@ -171,7 +171,7 @@ export default function EditProductPage() {
       </div>
 
       {/* Info banner */}
-      <div className="bg-primary-50 border border-primary-100 rounded-2xl p-4 mb-6 flex items-start gap-3">
+      <div className="bg-primary-50 border border-primary-100 rounded-2xl p-4 mb-6 flex items-start gap-3 md:max-w-2xl md:mx-auto">
         <HiOutlineInformationCircle className="w-5 h-5 text-primary-600 mt-0.5 shrink-0" />
         <p className="text-sm text-primary-600">
           Tu producto será enviado para revisión. Una vez aprobado, estará visible para los compradores.
@@ -180,13 +180,13 @@ export default function EditProductPage() {
 
       {/* Rejected reason */}
       {product.estado_aprobacion === 'RECHAZADO' && product.motivo_aprobacion && (
-        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-6">
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-6 md:max-w-2xl md:mx-auto">
           <p className="text-xs font-bold text-red-600 mb-1">Motivo de rechazo:</p>
           <p className="text-sm text-red-700">{product.motivo_aprobacion}</p>
         </div>
       )}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="md:max-w-2xl md:mx-auto">
         <div className="card rounded-2xl shadow-card mb-6">
           <h3 className="text-base font-display font-bold text-gray-900 mb-4">
             {product.estado_aprobacion === 'RECHAZADO' ? 'Editar y Reenviar' : 'Editar Producto'}

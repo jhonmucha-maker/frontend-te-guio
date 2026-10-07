@@ -218,7 +218,7 @@ export default function BuyerDashboard() {
   return (
     <div className="animate-fade-in">
       {/* Hero Header with Profile - full width edge to edge */}
-      <div className="-mx-4 sm:-mx-6 -mt-4 mb-6">
+      <div className="-mx-4 sm:-mx-6 -mt-4 sm:-mt-6 mb-6">
         <div className="gradient-hero px-5 pt-5 pb-10 relative">
           {/* Circulos decorativos grandes y prominentes como en referencia */}
           <div className="absolute top-[-25%] left-[-20%] w-[65%] h-[170%] rounded-full bg-white/[0.10]" />

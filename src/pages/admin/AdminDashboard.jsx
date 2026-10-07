@@ -149,7 +149,7 @@ export default function AdminDashboard() {
   return (
     <div className="animate-fade-in">
       {/* Hero edge-to-edge */}
-      <div className="-mx-4 sm:-mx-6 -mt-4">
+      <div className="-mx-4 sm:-mx-6 -mt-4 sm:-mt-6">
         <div className="gradient-hero px-6 pt-6 pb-14 relative">
           <div className="absolute top-[-25%] left-[-20%] w-[65%] h-[170%] rounded-full bg-white/[0.07]" />
           <div className="absolute top-[5%] right-[-25%] w-[60%] h-[150%] rounded-full bg-white/[0.05]" />

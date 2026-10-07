@@ -83,8 +83,8 @@ export default function ApprovalsPage() {
 
     return (
       <div key={item.id} className="bg-surface rounded-2xl shadow-card border border-gray-100/80 p-5 transition-all duration-200 hover:shadow-card-hover border-l-4 border-l-warning-400 animate-slide-up">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4 flex-1">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
+          <div className="flex items-center gap-4 flex-1 min-w-0">
             <div className="w-10 h-10 rounded-full bg-primary-50 flex items-center justify-center flex-shrink-0">
               <HiOutlineOfficeBuilding className="w-5 h-5 text-primary-600" />
             </div>
@@ -96,20 +96,20 @@ export default function ApprovalsPage() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 ml-4">
+          <div className="flex items-center gap-2 sm:ml-4 sm:flex-shrink-0">
             <button
               onClick={() => {
                 setShowReject(item.id);
                 setRejectReason('');
               }}
-              className="px-4 py-2 rounded-xl text-sm font-semibold text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 transition-all duration-200"
+              className="flex-1 sm:flex-none px-4 py-2 rounded-xl text-sm font-semibold text-red-600 border border-red-200 bg-red-50 hover:bg-red-100 transition-all duration-200"
               title="Rechazar"
             >
               Rechazar
             </button>
             <button
               onClick={() => handleApprove(item.id)}
-              className="btn-primary text-sm"
+              className="flex-1 sm:flex-none btn-primary text-sm"
               title="Aprobar"
             >
               Aprobar
@@ -129,9 +129,9 @@ export default function ApprovalsPage() {
       </div>
 
       {/* Stats Row */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-surface rounded-2xl shadow-card border border-gray-100/80 p-4 flex items-center gap-3">
-          <div className="w-11 h-11 rounded-full bg-warning-100 flex items-center justify-center">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6">
+        <div className="bg-surface rounded-2xl shadow-card border border-gray-100/80 p-3 sm:p-4 flex flex-col sm:flex-row items-center gap-1.5 sm:gap-3 text-center sm:text-left">
+          <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-warning-100 flex items-center justify-center flex-shrink-0">
             <HiOutlineClock className="w-6 h-6 text-warning-600" />
           </div>
           <div>
@@ -139,8 +139,8 @@ export default function ApprovalsPage() {
             <p className="text-xs text-gray-500">Pendientes</p>
           </div>
         </div>
-        <div className="bg-surface rounded-2xl shadow-card border border-gray-100/80 p-4 flex items-center gap-3">
-          <div className="w-11 h-11 rounded-full bg-green-100 flex items-center justify-center">
+        <div className="bg-surface rounded-2xl shadow-card border border-gray-100/80 p-3 sm:p-4 flex flex-col sm:flex-row items-center gap-1.5 sm:gap-3 text-center sm:text-left">
+          <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
             <HiOutlineCheck className="w-6 h-6 text-green-600" />
           </div>
           <div>
@@ -148,8 +148,8 @@ export default function ApprovalsPage() {
             <p className="text-xs text-gray-500">Aprobados</p>
           </div>
         </div>
-        <div className="bg-surface rounded-2xl shadow-card border border-gray-100/80 p-4 flex items-center gap-3">
-          <div className="w-11 h-11 rounded-full bg-red-100 flex items-center justify-center">
+        <div className="bg-surface rounded-2xl shadow-card border border-gray-100/80 p-3 sm:p-4 flex flex-col sm:flex-row items-center gap-1.5 sm:gap-3 text-center sm:text-left">
+          <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
             <HiOutlineX className="w-6 h-6 text-red-600" />
           </div>
           <div>

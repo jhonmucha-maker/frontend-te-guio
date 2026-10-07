@@ -81,7 +81,7 @@ export default function SellerDashboard() {
   return (
     <div className="animate-fade-in">
       {/* Hero greeting section - flush with navbar */}
-      <div className="-mx-4 sm:-mx-6 -mt-4 mb-8">
+      <div className="-mx-4 sm:-mx-6 -mt-4 sm:-mt-6 mb-8">
         <div className="gradient-hero px-5 pt-5 pb-10 relative overflow-hidden">
           {/* Circulos decorativos */}
           <div className="absolute top-[-25%] left-[-20%] w-[65%] h-[170%] rounded-full bg-white/[0.10]" />

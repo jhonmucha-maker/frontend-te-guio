@@ -114,7 +114,7 @@ export default function FavoritesPage() {
             description="Explore el marketplace y agregue productos que le gusten"
           />
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-2 md:gap-4">
             {favProducts.map((f) => {
               const p = f.producto;
               const tienda = p?.tienda;
@@ -270,7 +270,7 @@ export default function FavoritesPage() {
           description="Explore tiendas y agregue sus favoritas"
         />
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-4 md:space-y-0 md:grid md:grid-cols-2 md:gap-4">
           {favStores.map((f) => {
             const t = f.tienda;
             const galeria = t?.galeria;

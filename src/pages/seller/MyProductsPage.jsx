@@ -222,7 +222,7 @@ export default function MyProductsPage() {
           }
         />
       ) : (
-        <div className="space-y-2.5">
+        <div className="space-y-2.5 md:space-y-0 md:grid md:grid-cols-2 md:gap-3">
           {filteredProducts.map((product) => (
             <ProductCard
               key={product.id}

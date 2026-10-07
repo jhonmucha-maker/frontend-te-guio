@@ -231,7 +231,7 @@ export default function EditStorePage() {
 
       {/* Warning for approved stores */}
       {isApproved && (
-        <div className="bg-warning-50 border border-warning-200 rounded-2xl p-4 mb-6 flex items-start gap-3">
+        <div className="bg-warning-50 border border-warning-200 rounded-2xl p-4 mb-6 flex items-start gap-3 md:max-w-2xl md:mx-auto">
           <HiOutlineExclamation className="w-5 h-5 text-warning-500 mt-0.5 shrink-0" />
           <p className="text-sm text-warning-700">
             Al editar una tienda aprobada, esta pasará a estado Pendiente y quedará oculta junto con sus productos hasta ser aprobada nuevamente.
@@ -241,13 +241,13 @@ export default function EditStorePage() {
 
       {/* Rejected reason */}
       {isRejected && store.motivo_rechazo && (
-        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-6">
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 mb-6 md:max-w-2xl md:mx-auto">
           <p className="text-xs font-bold text-red-600 mb-1">Motivo de rechazo:</p>
           <p className="text-sm text-red-700">{store.motivo_rechazo}</p>
         </div>
       )}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="md:max-w-2xl md:mx-auto">
         {/* Datos de la Tienda */}
         <div className="mb-6">
           <h3 className="text-sm font-bold text-gray-800 mb-4">Datos de la Tienda</h3>

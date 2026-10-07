@@ -131,7 +131,7 @@ export default function StoreDetailPage() {
   return (
     <div className="animate-fade-in">
       {/* Store banner / image area */}
-      <div className="w-full h-48 sm:h-56 bg-gray-100 rounded-2xl overflow-hidden mb-4 shadow-card">
+      <div className="w-full h-48 sm:h-56 md:h-auto md:aspect-video bg-gray-100 rounded-2xl overflow-hidden mb-4 shadow-card">
         {storePhoto ? (
           <img
             src={storePhoto}
@@ -196,7 +196,7 @@ export default function StoreDetailPage() {
             <img
               src={resolveFileUrl(galeriaFotos[galleryImgIdx]?.url)}
               alt={`${galeria?.nombre || 'Galeria'} - Foto ${galleryImgIdx + 1}`}
-              className="w-full h-48 sm:h-56 object-cover transition-all duration-300"
+              className="w-full h-48 sm:h-56 md:h-auto md:aspect-video object-cover transition-all duration-300"
             />
             {/* Navigation arrows */}
             {galeriaFotos.length > 1 && (

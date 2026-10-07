@@ -226,7 +226,7 @@ export default function MyStoresPage() {
               <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 px-1">
                 MIS TIENDAS ACTIVAS
               </h2>
-              <div className="space-y-3">
+              <div className="space-y-3 md:space-y-0 md:grid md:grid-cols-2 md:gap-3">
                 {activeStores.map((store) => (
                   <ActiveStoreCard
                     key={store.id}
@@ -247,7 +247,7 @@ export default function MyStoresPage() {
               <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 px-1">
                 SOLICITUDES
               </h2>
-              <div className="space-y-3">
+              <div className="space-y-3 md:space-y-0 md:grid md:grid-cols-2 md:gap-3">
                 {pendingStores.map((store) => (
                   <PendingStoreCard
                     key={store.id}
@@ -267,7 +267,7 @@ export default function MyStoresPage() {
               <h2 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 px-1">
                 RECHAZADAS
               </h2>
-              <div className="space-y-3">
+              <div className="space-y-3 md:space-y-0 md:grid md:grid-cols-2 md:gap-3">
                 {rejectedStores.map((store) => (
                   <RejectedStoreCard
                     key={store.id}

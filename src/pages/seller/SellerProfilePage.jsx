@@ -96,7 +96,7 @@ export default function SellerProfilePage() {
   const hasAnySub = !!activeSub;
 
   return (
-    <div className="animate-fade-in pb-8">
+    <div className="animate-fade-in pb-8 md:max-w-2xl md:mx-auto">
       {/* Subscription banner */}
       <div
         onClick={() => navigate('/vendedor/suscripciones')}

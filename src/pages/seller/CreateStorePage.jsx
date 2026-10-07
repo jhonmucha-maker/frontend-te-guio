@@ -160,7 +160,7 @@ export default function CreateStorePage() {
       </div>
 
       {/* Info banner */}
-      <div className="bg-primary-50 border border-primary-100 rounded-2xl p-4 mb-6 flex items-start gap-3">
+      <div className="bg-primary-50 border border-primary-100 rounded-2xl p-4 mb-6 flex items-start gap-3 md:max-w-2xl md:mx-auto">
         <div className="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center shrink-0">
           <HiOutlineInformationCircle className="w-5 h-5 text-primary-600" />
         </div>
@@ -172,7 +172,7 @@ export default function CreateStorePage() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="md:max-w-2xl md:mx-auto">
         {/* Datos de la Tienda */}
         <div className="mb-6">
           <h3 className="text-sm font-bold text-gray-800 mb-4">Datos de la Tienda</h3>

@@ -338,7 +338,7 @@ export default function ShoppingListPage() {
   return (
     <div className="animate-fade-in" style={{ paddingBottom: 'calc(7rem + var(--android-nav-h, 0px))' }}>
       {/* ====== TOP INPUT BAR ====== */}
-      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-gray-100 px-4 py-3 -mx-4 mb-4 shadow-sm">
+      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-gray-100 px-4 sm:px-6 py-3 -mx-4 sm:-mx-6 mb-4 shadow-sm">
         <div className="flex items-center gap-2">
           {/* Text input */}
           <input
@@ -499,7 +499,7 @@ export default function ShoppingListPage() {
 
       {/* ====== BOTTOM BAR ====== */}
       {items.length > 0 && (
-        <div className="fixed left-0 right-0 bg-surface border-t border-gray-100 shadow-elevated z-30" style={{ bottom: 'var(--android-nav-h, 0px)' }}>
+        <div className="fixed left-0 lg:left-64 right-0 bg-surface border-t border-gray-100 shadow-elevated z-30" style={{ bottom: 'var(--android-nav-h, 0px)' }}>
           <div className="max-w-3xl mx-auto flex items-center justify-between px-4 py-3">
             {/* Completed count */}
             <div className="flex items-center gap-2">
