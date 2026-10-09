@@ -15,7 +15,13 @@ import './styles/tailwind.css';
 // Overlay and padding are handled natively in MainActivity.java
 // to ensure universal compatibility across all Android versions.
 // Theme-aware colors are applied dynamically by useTheme hook.
-if (Capacitor.isNativePlatform()) {
+if (Capacitor.getPlatform() === 'ios') {
+  // iOS: Style.Dark = texto blanco (fondo morado del navbar/login).
+  // El espacio inferior es el home indicator, no la barra de navegacion Android.
+  StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
+  document.documentElement.style.setProperty('--android-nav-h', 'env(safe-area-inset-bottom, 0px)');
+  document.documentElement.classList.add('platform-ios');
+} else if (Capacitor.isNativePlatform()) {
   const savedTheme = localStorage.getItem('app_theme') || 'light';
   const isDark = savedTheme === 'dark';
   StatusBar.setStyle({ style: Style.Light }).catch(() => {});
@@ -62,7 +68,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             top: 'calc(8px + var(--sat, 0px))',
             // Bottom offset: respeta nav bar Android (--android-nav-h, seteada por NavigationBar plugin)
             // + home indicator iOS (--sab). Garantiza que ningún toast quede bajo la barra de navegación.
-            bottom: 'calc(8px + var(--android-nav-h, 0px) + var(--sab, 0px))',
+            // En iOS --android-nav-h ya es el safe-area inferior; no sumarlo dos veces.
+            bottom: Capacitor.getPlatform() === 'ios'
+              ? 'calc(8px + var(--sab, 0px))'
+              : 'calc(8px + var(--android-nav-h, 0px) + var(--sab, 0px))',
             // z-index sobre el strip body::after (99999) que cubre la nav bar transparente.
             zIndex: 1000000,
           }}

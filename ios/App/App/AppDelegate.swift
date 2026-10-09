@@ -3,6 +3,17 @@ import Capacitor
 import FirebaseCore
 import FirebaseMessaging
 
+// MARK: - Gesto "deslizar para volver" (iOS no tiene boton atras)
+// Habilita el swipe desde el borde izquierdo hacia la derecha para retroceder
+// en el historial del WebView (react-router escucha popstate).
+// Referenciado desde Main.storyboard.
+class MainViewController: CAPBridgeViewController {
+    override func capacitorDidLoad() {
+        super.capacitorDidLoad()
+        webView?.allowsBackForwardNavigationGestures = true
+    }
+}
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 

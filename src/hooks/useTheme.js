@@ -8,6 +8,13 @@ const THEME_KEY = 'app_theme';
 function applyNativeBars(isDark) {
   if (!Capacitor.isNativePlatform()) return;
 
+  // iOS: la status bar es transparente sobre el navbar morado/oscuro en ambos
+  // temas; solo se fija texto blanco (Style.Dark). NavigationBar es solo Android.
+  if (Capacitor.getPlatform() === 'ios') {
+    StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
+    return;
+  }
+
   if (isDark) {
     // Dark mode: dark status bar with white icons, dark nav bar with light buttons
     StatusBar.setStyle({ style: Style.Light }).catch(() => {});

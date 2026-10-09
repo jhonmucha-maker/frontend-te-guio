@@ -88,6 +88,12 @@
     pointer-events: none;
   }
 
+  /* iOS: en pantallas de fondo morado completo (login, registro, etc.)
+     el gradiente debe verse detras del home indicator, sin franja. */
+  html.platform-ios body:has(.pb-safe-bottom)::after {
+    display: none;
+  }
+
   /* Checkbox & radio: color consistente en todos los dispositivos */
   input[type="checkbox"],
   input[type="radio"] {

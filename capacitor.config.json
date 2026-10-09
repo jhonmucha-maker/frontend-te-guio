@@ -40,5 +40,8 @@
   "android": {
     "allowMixedContent": true,
     "webContentsDebuggingEnabled": true
+  },
+  "ios": {
+    "allowsLinkPreview": false
   }
 }
